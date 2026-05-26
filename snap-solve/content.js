@@ -9,11 +9,6 @@ let selectionEl = null;
 let isDragging = false;
 let activeCard = null;
 
-// TEMP TEST ONLY - REMOVE AFTER STAGE 4 TEST
-document.addEventListener("keydown", (e) => {
-  if (e.ctrlKey && e.shiftKey && e.key === "E") activateOverlay();
-});
-
 // Listen for activation message from background script
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "activate") {
@@ -259,7 +254,7 @@ function showAnswerCard(rect, config) {
 function calculateCardPosition(rect) {
   const cardWidth = 360;
   const cardHeight = 200;
-  const margin = 20;
+  const margin = 10; // tighter margin to keep card clearly inside viewport
 
   let x, y;
 
@@ -278,9 +273,9 @@ function calculateCardPosition(rect) {
   // Position vertically centered with selection
   y = rect.y + rect.height / 2 - cardHeight / 2;
 
-  // Keep within viewport bounds
+  // Keep within viewport bounds (ensure some minimum bottom spacing)
   x = Math.max(margin, Math.min(window.innerWidth - cardWidth - margin, x));
-  y = Math.max(margin, Math.min(window.innerHeight - cardHeight - margin, y));
+  y = Math.max(margin, Math.min(window.innerHeight - 100, y));
 
   return { x, y };
 }
@@ -343,8 +338,31 @@ function processMarkdown(text) {
   return text;
 }
 
-// Capture and solve (stage 5 placeholder)
+// Capture and solve (stage 7 wiring)
 async function captureAndSolve(rect) {
-  showAnswerCard(rect);
-  // API logic will be added in Stage 6
+  rect.devicePixelRatio = window.devicePixelRatio || 1;
+
+  const configResult = await chrome.storage.local.get("snapsolve_config");
+  const config = configResult.snapsolve_config;
+
+  showAnswerCard(rect, config);
+
+  chrome.runtime.sendMessage(
+    { action: "captureAndQuery", rect },
+    (response) => {
+      if (chrome.runtime.lastError) {
+        displayAnswer(
+          "⚠ Extension error: " + chrome.runtime.lastError.message,
+          true,
+        );
+        return;
+      }
+
+      if (response && response.error) {
+        displayAnswer("⚠ " + response.error, true);
+      } else if (response && response.answer) {
+        displayAnswer(response.answer, false);
+      }
+    },
+  );
 }

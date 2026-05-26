@@ -142,7 +142,17 @@ async function callOpenAICompatible(baseUrl, apiKey, model, base64Image) {
           },
           {
             type: "text",
-            text: "Look at this image carefully. It contains a question or problem. Please provide the correct answer clearly and concisely. If it is multiple choice, state the correct option letter and explain why briefly.",
+            text: `You are an expert tutor. Look at this image carefully.
+
+Step 1 - Read the question exactly as written.
+Step 2 - Identify all answer options.
+Step 3 - Reason through each option one by one.
+Step 4 - State your final answer as: ANSWER: [option letter or word]
+
+Rules:
+- Your final ANSWER must match your own reasoning. Never contradict yourself.
+- For multiple choice, always include the option letter (A, B, C, D).
+- Be concise but accurate.`,
           },
         ],
       },
@@ -191,7 +201,17 @@ async function callAnthropic(baseUrl, apiKey, model, base64Image) {
             },
             {
               type: "text",
-              text: "Look at this image carefully. It contains a question or problem. Please provide the correct answer clearly and concisely. If it is multiple choice, state the correct option letter and explain why briefly.",
+              text: `You are an expert tutor. Look at this image carefully.
+
+Step 1 - Read the question exactly as written.
+Step 2 - Identify all answer options.
+Step 3 - Reason through each option one by one.
+Step 4 - State your final answer as: ANSWER: [option letter or word]
+
+Rules:
+- Your final ANSWER must match your own reasoning. Never contradict yourself.
+- For multiple choice, always include the option letter (A, B, C, D).
+- Be concise but accurate.`,
             },
           ],
         },
@@ -200,7 +220,6 @@ async function callAnthropic(baseUrl, apiKey, model, base64Image) {
   });
 
   if (!response.ok) {
-    const errText = await response.text();
     throw new Error(`Anthropic API Error ${response.status}: ${errText}`);
   }
 
@@ -209,35 +228,56 @@ async function callAnthropic(baseUrl, apiKey, model, base64Image) {
 }
 
 // Call Google API
-async function callGoogle(baseUrl, apiKey, model, base64Image) {
-  const url = `${baseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            {
-              inline_data: {
-                mime_type: "image/png",
-                data: base64Image,
+text: (`You are an expert tutor. Look at this image carefully.
+
+Step 1 - Read the question exactly as written.
+Step 2 - Identify all answer options.
+Step 3 - Reason through each option one by one.
+Step 4 - State your final answer as: ANSWER: [option letter or word]
+
+Rules:
+- Your final ANSWER must match your own reasoning. Never contradict yourself.
+- For multiple choice, always include the option letter (A, B, C, D).
+- Be concise but accurate.`,
+  async function callGoogle(baseUrl, apiKey, model, base64Image) {
+    const url = `${baseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                inline_data: {
+                  mime_type: "image/png",
+                  data: base64Image,
+                },
               },
-            },
-            {
-              text: "Look at this image carefully. It contains a question or problem. Please provide the correct answer clearly and concisely. If it is multiple choice, state the correct option letter and explain why briefly.",
-            },
-          ],
-        },
-      ],
-    }),
+              {
+                text: `You are an expert tutor. Look at this image carefully.
+
+Step 1 - Read the question exactly as written.
+Step 2 - Identify all answer options.
+Step 3 - Reason through each option one by one.
+Step 4 - State your final answer as: ANSWER: [option letter or word]
+
+Rules:
+- Your final ANSWER must match your own reasoning. Never contradict yourself.
+- For multiple choice, always include the option letter (A, B, C, D).
+- Be concise but accurate.`,
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Google API Error ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
   });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Google API Error ${response.status}: ${errText}`);
-  }
-
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text;
-}
