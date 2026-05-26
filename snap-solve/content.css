@@ -1,0 +1,153 @@
+:root {
+  --ss-bg: #1a1a24;
+  --ss-surface: #22222f;
+  --ss-border: #2e2e3f;
+  --ss-text: #e8e8f0;
+  --ss-text-muted: #888899;
+  --ss-accent: #7c6af7;
+  --ss-radius: 12px;
+  --ss-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+}
+
+#snapsolve-card {
+  position: fixed;
+  width: 360px;
+  background: var(--ss-bg);
+  border: 1px solid var(--ss-border);
+  border-radius: var(--ss-radius);
+  box-shadow: var(--ss-shadow);
+  z-index: 2147483647;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: var(--ss-text);
+  z-index: 2147483647;
+}
+
+#snapsolve-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--ss-surface);
+  border-bottom: 1px solid var(--ss-border);
+  border-radius: var(--ss-radius) var(--ss-radius) 0 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.snapsolve-provider-badge {
+  font-size: 11px;
+  color: var(--ss-text-muted);
+  letter-spacing: 0.3px;
+}
+
+#snapsolve-close {
+  background: none;
+  border: none;
+  color: var(--ss-text-muted);
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#snapsolve-close:hover {
+  color: white;
+  background: rgba(255,255,255,0.1);
+}
+
+#snapsolve-card-body {
+  padding: 16px;
+  min-height: 80px;
+  max-height: 440px;
+  overflow-y: auto;
+}
+
+#snapsolve-answer {
+  line-height: 1.65;
+  color: var(--ss-text);
+}
+
+#snapsolve-answer p {
+  margin: 0 0 10px 0;
+}
+
+#snapsolve-answer strong {
+  color: white;
+}
+
+#snapsolve-answer code {
+  background: var(--ss-surface);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+#snapsolve-answer ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+#snapsolve-answer li {
+  margin: 0 0 8px 0;
+  position: relative;
+  padding-left: 20px;
+}
+
+#snapsolve-answer li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.skeleton-line {
+  height: 12px;
+  background: linear-gradient(90deg, var(--ss-surface) 25%, #2e2e45 50%, var(--ss-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.skeleton-line.long   { width: 92%; }
+.skeleton-line.medium { width: 68%; }
+.skeleton-line.short  { width: 45%; }
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+#snapsolve-card-body::-webkit-scrollbar { width: 5px; }
+#snapsolve-card-body::-webkit-scrollbar-track { background: transparent; }
+#snapsolve-card-body::-webkit-scrollbar-thumb { background: var(--ss-border); border-radius: 3px; }
+
+@keyframes enter {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+#snapsolve-card {
+  animation: enter 0.2s ease-out forwards;
+}
+
+.snapsolve-loading-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--ss-accent);
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.snapsolve-loading-dot {
+  animation: pulse 1s infinite;
+}
