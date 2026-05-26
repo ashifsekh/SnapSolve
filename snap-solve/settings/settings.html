@@ -1,160 +1,181 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <title>SnapSolve Settings</title>
-  <style>
-    body {
-      background: #0f0f13;
-      color: #e8e8f0;
-      font-family: system-ui, -apple-system, sans-serif;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-    
-    .container {
-      width: 100%;
-      max-width: 480px;
-      background: #1a1a24;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    }
-    
-    h1 {
-      margin: 0 0 4px 0;
-      font-size: 24px;
-      color: #7c6af7;
-    }
-    
-    .subtitle {
-      margin: 0 0 24px 0;
-      color: #888899;
-      font-size: 14px;
-    }
-    
-    select, input {
-      width: 100%;
-      padding: 12px;
-      background: #22222f;
-      border: 1px solid #2e2e3f;
-      border-radius: 8px;
-      color: #e8e8f0;
-      font-size: 14px;
-      margin: 8px 0 16px 0;
-      transition: all 0.2s ease;
-    }
-    
-    select:focus, input:focus {
-      outline: 2px solid #7c6af7;
-    }
-    
-    label {
-      display: block;
-      margin: 16px 0 8px 0;
-      font-size: 14px;
-      color: #e8e8f0;
-    }
-    
-    .field {
-      display: none;
-    }
-    
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #7c6af7;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin: 24px 0 16px 0;
-    }
-    
-    button:hover {
-      background: #8d7bf8;
-      transform: translateY(-1px);
-    }
-    
-    #status-msg {
-      display: none;
-      padding: 12px;
-      border-radius: 8px;
-      margin: 16px 0;
-      text-align: center;
-    }
-    
-    .notice {
-      background: rgba(30, 144, 255, 0.15);
-      border: 1px solid rgba(30, 144, 255, 0.3);
-      border-radius: 8px;
-      padding: 12px;
-      margin: 16px 0;
-      font-size: 13px;
-      color: #a0c8ff;
-    }
-    
-    .info-card {
-      background: #22222f;
-      border: 1px solid #2e2e3f;
-      border-radius: 8px;
-      padding: 16px;
-      margin-top: 24px;
-      font-size: 13px;
-      color: #888899;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>SnapSolve</h1>
-    <p class="subtitle">Configure your AI provider</p>
-    
-    <label for="provider-select">AI Provider</label>
-    <select id="provider-select">
-      <option value="" disabled selected>-- Select a Provider --</option>
-      <option value="openai">OpenAI</option>
-      <option value="anthropic">Anthropic</option>
-      <option value="google">Google Gemini</option>
-      <option value="nvidia">NVIDIA NIM</option>
-      <option value="ollama">Ollama (Local)</option>
-      <option value="openrouter">OpenRouter</option>
-      <option value="groq">Groq</option>
-      <option value="custom">Custom / Other</option>
-    </select>
-    
-    <div id="field-baseurl" class="field">
-      <label for="input-baseurl">Base URL</label>
-      <input type="text" id="input-baseurl" placeholder="https://api.example.com/v1">
+  <head>
+    <title>SnapSolve Settings</title>
+    <style>
+      body {
+        background: #0f0f13;
+        color: #e8e8f0;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 480px;
+        background: #1a1a24;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      }
+
+      h1 {
+        margin: 0 0 4px 0;
+        font-size: 24px;
+        color: #7c6af7;
+      }
+
+      .subtitle {
+        margin: 0 0 24px 0;
+        color: #888899;
+        font-size: 14px;
+      }
+
+      select,
+      input {
+        width: 100%;
+        padding: 12px;
+        background: #22222f;
+        border: 1px solid #2e2e3f;
+        border-radius: 8px;
+        color: #e8e8f0;
+        font-size: 14px;
+        margin: 8px 0 16px 0;
+        transition: all 0.2s ease;
+      }
+
+      select:focus,
+      input:focus {
+        outline: 2px solid #7c6af7;
+      }
+
+      label {
+        display: block;
+        margin: 16px 0 8px 0;
+        font-size: 14px;
+        color: #e8e8f0;
+      }
+
+      .field {
+        display: none;
+      }
+
+      button {
+        width: 100%;
+        padding: 14px;
+        background: #7c6af7;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 24px 0 16px 0;
+      }
+
+      button:hover {
+        background: #8d7bf8;
+        transform: translateY(-1px);
+      }
+
+      #status-msg {
+        display: none;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 16px 0;
+        text-align: center;
+      }
+
+      .notice {
+        background: rgba(30, 144, 255, 0.15);
+        border: 1px solid rgba(30, 144, 255, 0.3);
+        border-radius: 8px;
+        padding: 12px;
+        margin: 16px 0;
+        font-size: 13px;
+        color: #a0c8ff;
+      }
+
+      .info-card {
+        background: #22222f;
+        border: 1px solid #2e2e3f;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 24px;
+        font-size: 13px;
+        color: #888899;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>SnapSolve</h1>
+      <p class="subtitle">Configure your AI provider</p>
+
+      <label for="provider-select">AI Provider</label>
+      <select id="provider-select">
+        <option value="" disabled selected>-- Select a Provider --</option>
+        <option value="openai">OpenAI</option>
+        <option value="anthropic">Anthropic</option>
+        <option value="google">Google Gemini</option>
+        <option value="nvidia">NVIDIA NIM</option>
+        <option value="ollama">Ollama (Local)</option>
+        <option value="openrouter">OpenRouter</option>
+        <option value="groq">Groq</option>
+        <option value="custom">Custom / Other</option>
+      </select>
+
+      <div id="field-baseurl" class="field">
+        <label for="input-baseurl">Base URL</label>
+        <input
+          type="text"
+          id="input-baseurl"
+          placeholder="https://api.example.com/v1"
+        />
+      </div>
+
+      <div id="field-apikey" class="field">
+        <label for="input-apikey">API Key</label>
+        <input
+          type="password"
+          id="input-apikey"
+          placeholder="Paste your API key here"
+        />
+      </div>
+
+      <div id="field-ollama-notice" class="notice field">
+        Ollama runs locally. Make sure Ollama Desktop is open. No API key is
+        required.
+      </div>
+
+      <div id="field-model" class="field">
+        <label>Model</label>
+        <select id="select-model"></select>
+        <input
+          type="text"
+          id="input-model-custom"
+          placeholder="Type exact model name..."
+          style="display: none; margin-top: 8px"
+        />
+      </div>
+
+      <button id="btn-save">Save Configuration</button>
+
+      <div id="status-msg"></div>
+
+      <div class="info-card">
+        After saving, press <strong>Ctrl+Shift+E</strong> (or
+        <strong>Cmd+Shift+E</strong> on Mac) on any page to activate SnapSolve
+      </div>
     </div>
-    
-    <div id="field-apikey" class="field">
-      <label for="input-apikey">API Key</label>
-      <input type="password" id="input-apikey" placeholder="Paste your API key here">
-    </div>
-    
-    <div id="field-ollama-notice" class="notice field">
-      Ollama runs locally. Make sure Ollama Desktop is open. No API key is required.
-    </div>
-    
-    <div id="field-model" class="field">
-      <label for="input-model">Model Name</label>
-      <input type="text" id="input-model" placeholder="e.g. gpt-4o, llama-3.2, gemini-1.5-flash">
-    </div>
-    
-    <button id="btn-save">Save Configuration</button>
-    
-    <div id="status-msg"></div>
-    
-    <div class="info-card">
-      After saving, press <strong>Ctrl+Shift+E</strong> (or <strong>Cmd+Shift+E</strong> on Mac) on any page to activate SnapSolve
-    </div>
-  </div>
-  
-  <script src="settings.js"></script>
-</body>
+
+    <script src="settings.js"></script>
+  </body>
 </html>

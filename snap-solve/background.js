@@ -142,17 +142,12 @@ async function callOpenAICompatible(baseUrl, apiKey, model, base64Image) {
           },
           {
             type: "text",
-            text: `You are an expert tutor. Look at this image carefully.
+            text: `You are a quiz solver. Look at the question in the image and respond in this exact format:
 
-Step 1 - Read the question exactly as written.
-Step 2 - Identify all answer options.
-Step 3 - Reason through each option one by one.
-Step 4 - State your final answer as: ANSWER: [option letter or word]
+ANSWER: [option letter + full option text, or direct answer]
+WHY: [one sentence explanation only]
 
-Rules:
-- Your final ANSWER must match your own reasoning. Never contradict yourself.
-- For multiple choice, always include the option letter (A, B, C, D).
-- Be concise but accurate.`,
+No steps. No lists. No extra text. Two lines maximum.`,
           },
         ],
       },
@@ -201,17 +196,12 @@ async function callAnthropic(baseUrl, apiKey, model, base64Image) {
             },
             {
               type: "text",
-              text: `You are an expert tutor. Look at this image carefully.
+              text: `You are a quiz solver. Look at the question in the image and respond in this exact format:
 
-Step 1 - Read the question exactly as written.
-Step 2 - Identify all answer options.
-Step 3 - Reason through each option one by one.
-Step 4 - State your final answer as: ANSWER: [option letter or word]
+ANSWER: [option letter + full option text, or direct answer]
+WHY: [one sentence explanation only]
 
-Rules:
-- Your final ANSWER must match your own reasoning. Never contradict yourself.
-- For multiple choice, always include the option letter (A, B, C, D).
-- Be concise but accurate.`,
+No steps. No lists. No extra text. Two lines maximum.`,
             },
           ],
         },
@@ -228,56 +218,40 @@ Rules:
 }
 
 // Call Google API
-text: (`You are an expert tutor. Look at this image carefully.
-
-Step 1 - Read the question exactly as written.
-Step 2 - Identify all answer options.
-Step 3 - Reason through each option one by one.
-Step 4 - State your final answer as: ANSWER: [option letter or word]
-
-Rules:
-- Your final ANSWER must match your own reasoning. Never contradict yourself.
-- For multiple choice, always include the option letter (A, B, C, D).
-- Be concise but accurate.`,
-  async function callGoogle(baseUrl, apiKey, model, base64Image) {
-    const url = `${baseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                inline_data: {
-                  mime_type: "image/png",
-                  data: base64Image,
-                },
+async function callGoogle(baseUrl, apiKey, model, base64Image) {
+  const url = `${baseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            {
+              inline_data: {
+                mime_type: "image/png",
+                data: base64Image,
               },
-              {
-                text: `You are an expert tutor. Look at this image carefully.
+            },
+            {
+              text: `You are a quiz solver. Look at the question in the image and respond in this exact format:
 
-Step 1 - Read the question exactly as written.
-Step 2 - Identify all answer options.
-Step 3 - Reason through each option one by one.
-Step 4 - State your final answer as: ANSWER: [option letter or word]
+ANSWER: [option letter + full option text, or direct answer]
+WHY: [one sentence explanation only]
 
-Rules:
-- Your final ANSWER must match your own reasoning. Never contradict yourself.
-- For multiple choice, always include the option letter (A, B, C, D).
-- Be concise but accurate.`,
-              },
-            ],
-          },
-        ],
-      }),
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Google API Error ${response.status}: ${errText}`);
-    }
-
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
+No steps. No lists. No extra text. Two lines maximum.`,
+            },
+          ],
+        },
+      ],
+    }),
   });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Google API Error ${response.status}: ${errText}`);
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
+}
