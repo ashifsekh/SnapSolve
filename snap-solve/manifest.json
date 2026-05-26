@@ -10,6 +10,7 @@
     "tabs"
   ],
   "host_permissions": [
+    "<all_urls>",
     "http://localhost/*",
     "http://127.0.0.1/*"
   ],
@@ -24,9 +25,7 @@
       "run_at": "document_idle"
     }
   ],
-  "action": {
-    "default_popup": null
-  },
+  "action": {},
   "options_page": "settings/settings.html",
   "commands": {
     "activate-snapper": {
