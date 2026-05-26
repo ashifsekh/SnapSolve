@@ -3,11 +3,38 @@ chrome.commands.onCommand.addListener((command) => {
   if (command === "activate-snapper") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: "activate" });
+        sendActivateMessage(tabs[0].id);
       }
     });
   }
 });
+
+async function sendActivateMessage(tabId) {
+  chrome.tabs.sendMessage(tabId, { action: "activate" }, async () => {
+    if (chrome.runtime.lastError) {
+      const lastErrorMessage = chrome.runtime.lastError.message || "";
+      if (lastErrorMessage.includes("Receiving end does not exist")) {
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId },
+            files: ["content.js"],
+          });
+
+          chrome.tabs.sendMessage(tabId, { action: "activate" }, () => {
+            if (chrome.runtime.lastError) {
+              console.warn(
+                "SnapSolve activate retry failed:",
+                chrome.runtime.lastError.message,
+              );
+            }
+          });
+        } catch (err) {
+          console.warn("SnapSolve could not inject content script:", err);
+        }
+      }
+    }
+  });
+}
 
 // Handle messages from content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

@@ -9,6 +9,11 @@ let selectionEl = null;
 let isDragging = false;
 let activeCard = null;
 
+// TEMP TEST ONLY - REMOVE AFTER STAGE 4 TEST
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.shiftKey && e.key === "E") activateOverlay();
+});
+
 // Listen for activation message from background script
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "activate") {
@@ -46,13 +51,16 @@ function activateOverlay() {
   overlayEl.style.zIndex = "2147483646";
   overlayEl.style.cursor = "crosshair";
   overlayEl.style.userSelect = "none";
+  overlayEl.style.pointerEvents = "auto";
+  overlayEl.style.touchAction = "none";
+  overlayEl.style.overscrollBehavior = "none";
 
   document.body.appendChild(overlayEl);
 
-  // Add event listeners
-  overlayEl.addEventListener("mousedown", handleMouseDown);
-  overlayEl.addEventListener("mousemove", handleMouseMove);
-  overlayEl.addEventListener("mouseup", handleMouseUp);
+  // Add event listeners in capture phase so the overlay always receives them
+  document.addEventListener("mousedown", handleMouseDown, true);
+  document.addEventListener("mousemove", handleMouseMove, true);
+  document.addEventListener("mouseup", handleMouseUp, true);
 
   // Add escape key listener
   document.addEventListener("keydown", handleKeyDown);
@@ -60,6 +68,7 @@ function activateOverlay() {
 
 // Handle mouse down on overlay
 function handleMouseDown(e) {
+  if (!isActive || e.button !== 0) return;
   e.preventDefault();
   isDragging = true;
 
@@ -124,6 +133,7 @@ function handleMouseUp(e) {
 
   // Deactivate overlay and stop at the stage 4 behavior
   deactivateOverlay();
+  captureAndSolve(rect);
 }
 
 // Handle escape key press
@@ -151,6 +161,9 @@ function deactivateOverlay() {
 
   // Remove event listeners
   document.removeEventListener("keydown", handleKeyDown);
+  document.removeEventListener("mousedown", handleMouseDown, true);
+  document.removeEventListener("mousemove", handleMouseMove, true);
+  document.removeEventListener("mouseup", handleMouseUp, true);
 }
 
 // Show the answer card
