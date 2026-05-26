@@ -1,9 +1,9 @@
 // Listen for the keyboard shortcut
 chrome.commands.onCommand.addListener((command) => {
   if (command === "activate-snapper") {
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, {action: "activate"});
+        chrome.tabs.sendMessage(tabs[0].id, { action: "activate" });
       }
     });
   }
@@ -22,24 +22,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function handleCaptureAndQuery(rect, tabId, sendResponse) {
   try {
     // Capture the full visible tab as a data URL
-    const screenshotDataUrl = await chrome.tabs.captureVisibleTab(null, { format: "png" });
-    
+    const screenshotDataUrl = await chrome.tabs.captureVisibleTab(null, {
+      format: "png",
+    });
+
     // Crop to the selection rect using OffscreenCanvas
     const croppedBase64 = await cropImage(screenshotDataUrl, rect);
-    
+
     // Load config from storage
     const result = await chrome.storage.local.get("snapsolve_config");
     const config = result.snapsolve_config;
-    
+
     if (!config || !config.provider) {
-      sendResponse({ error: "No provider configured. Please open SnapSolve settings." });
+      sendResponse({
+        error: "No provider configured. Please open SnapSolve settings.",
+      });
       return;
     }
-    
+
     // Call the correct API based on provider
     const answer = await callAI(config, croppedBase64);
     sendResponse({ answer });
-    
   } catch (err) {
     sendResponse({ error: err.message || "An unknown error occurred." });
   }
@@ -50,11 +53,11 @@ async function cropImage(dataUrl, rect) {
   const res = await fetch(dataUrl);
   const blob = await res.blob();
   const imageBitmap = await createImageBitmap(blob);
-  
+
   // Account for device pixel ratio
   const canvas = new OffscreenCanvas(
     Math.round(rect.width * rect.devicePixelRatio),
-    Math.round(rect.height * rect.devicePixelRatio)
+    Math.round(rect.height * rect.devicePixelRatio),
   );
   const ctx = canvas.getContext("2d");
   ctx.drawImage(
@@ -63,11 +66,12 @@ async function cropImage(dataUrl, rect) {
     Math.round(rect.y * rect.devicePixelRatio),
     Math.round(rect.width * rect.devicePixelRatio),
     Math.round(rect.height * rect.devicePixelRatio),
-    0, 0,
+    0,
+    0,
     Math.round(rect.width * rect.devicePixelRatio),
-    Math.round(rect.height * rect.devicePixelRatio)
+    Math.round(rect.height * rect.devicePixelRatio),
   );
-  
+
   const outputBlob = await canvas.convertToBlob({ type: "image/png" });
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -79,7 +83,7 @@ async function cropImage(dataUrl, rect) {
 // Call AI function based on provider
 async function callAI(config, base64Image) {
   const { provider, baseUrl, apiKey, model } = config;
-  
+
   if (provider === "anthropic") {
     return await callAnthropic(baseUrl, apiKey, model, base64Image);
   } else if (provider === "google") {
@@ -97,7 +101,7 @@ async function callOpenAICompatible(baseUrl, apiKey, model, base64Image) {
   if (apiKey && apiKey.trim() !== "") {
     headers["Authorization"] = `Bearer ${apiKey}`;
   }
-  
+
   const body = {
     model: model,
     max_tokens: 1024,
@@ -107,28 +111,28 @@ async function callOpenAICompatible(baseUrl, apiKey, model, base64Image) {
         content: [
           {
             type: "image_url",
-            image_url: { url: `data:image/png;base64,${base64Image}` }
+            image_url: { url: `data:image/png;base64,${base64Image}` },
           },
           {
             type: "text",
-            text: "Look at this image carefully. It contains a question or problem. Please provide the correct answer clearly and concisely. If it is multiple choice, state the correct option letter and explain why briefly."
-          }
-        ]
-      }
-    ]
+            text: "Look at this image carefully. It contains a question or problem. Please provide the correct answer clearly and concisely. If it is multiple choice, state the correct option letter and explain why briefly.",
+          },
+        ],
+      },
+    ],
   };
-  
+
   const response = await fetch(url, {
     method: "POST",
     headers,
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
-  
+
   if (!response.ok) {
     const errText = await response.text();
     throw new Error(`API Error ${response.status}: ${errText}`);
   }
-  
+
   const data = await response.json();
   return data.choices[0].message.content;
 }
@@ -141,7 +145,7 @@ async function callAnthropic(baseUrl, apiKey, model, base64Image) {
     headers: {
       "Content-Type": "application/json",
       "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01"
+      "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
       model: model,
@@ -155,24 +159,24 @@ async function callAnthropic(baseUrl, apiKey, model, base64Image) {
               source: {
                 type: "base64",
                 media_type: "image/png",
-                data: base64Image
-              }
+                data: base64Image,
+              },
             },
             {
               type: "text",
-              text: "Look at this image carefully. It contains a question or problem. Please provide the correct answer clearly and concisely. If it is multiple choice, state the correct option letter and explain why briefly."
-            }
-          ]
-        }
-      ]
-    })
+              text: "Look at this image carefully. It contains a question or problem. Please provide the correct answer clearly and concisely. If it is multiple choice, state the correct option letter and explain why briefly.",
+            },
+          ],
+        },
+      ],
+    }),
   });
-  
+
   if (!response.ok) {
     const errText = await response.text();
     throw new Error(`Anthropic API Error ${response.status}: ${errText}`);
   }
-  
+
   const data = await response.json();
   return data.content[0].text;
 }
@@ -182,7 +186,7 @@ async function callGoogle(baseUrl, apiKey, model, base64Image) {
   const url = `${baseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const response = await fetch(url, {
     method: "POST",
-    headers: { "Content: " },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [
         {
@@ -190,23 +194,23 @@ async function callGoogle(baseUrl, apiKey, model, base64Image) {
             {
               inline_data: {
                 mime_type: "image/png",
-                data: base64Image
-              }
+                data: base64Image,
+              },
             },
             {
-              text: "Look at this image carefully. It contains a question or problem. Please provide the correct answer clearly and concisely. If it is multiple choice, state the correct option letter and explain why briefly."
-            }
-          ]
-        }
-      ]
-    })
+              text: "Look at this image carefully. It contains a question or problem. Please provide the correct answer clearly and concisely. If it is multiple choice, state the correct option letter and explain why briefly.",
+            },
+          ],
+        },
+      ],
+    }),
   });
-  
+
   if (!response.ok) {
     const errText = await response.text();
     throw new Error(`Google API Error ${response.status}: ${errText}`);
   }
-  
+
   const data = await response.json();
   return data.candidates[0].content.parts[0].text;
 }
