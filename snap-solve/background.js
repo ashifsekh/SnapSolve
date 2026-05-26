@@ -147,6 +147,8 @@ async function callOpenAICompatible(baseUrl, apiKey, model, base64Image) {
 ANSWER: [option letter + full option text, or direct answer]
 WHY: [one sentence explanation only]
 
+Put a blank line between ANSWER and WHY.
+
 No steps. No lists. No extra text. Two lines maximum.`,
           },
         ],
@@ -201,6 +203,8 @@ async function callAnthropic(baseUrl, apiKey, model, base64Image) {
 ANSWER: [option letter + full option text, or direct answer]
 WHY: [one sentence explanation only]
 
+Put a blank line between ANSWER and WHY.
+
 No steps. No lists. No extra text. Two lines maximum.`,
             },
           ],
@@ -238,6 +242,8 @@ async function callGoogle(baseUrl, apiKey, model, base64Image) {
 
 ANSWER: [option letter + full option text, or direct answer]
 WHY: [one sentence explanation only]
+
+Put a blank line between ANSWER and WHY.
 
 No steps. No lists. No extra text. Two lines maximum.`,
             },
