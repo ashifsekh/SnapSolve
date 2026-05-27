@@ -252,7 +252,6 @@ const modelLoading = document.getElementById("model-loading");
 const btnRefreshModels = document.getElementById("btn-refresh-models");
 const modelSourceBadge = document.getElementById("model-source-badge");
 const profileList = document.getElementById("profile-list");
-const inputProfileName = document.getElementById("input-profile-name");
 const btnSave = document.getElementById("btn-save");
 const statusMsg = document.getElementById("status-msg");
 
@@ -309,7 +308,7 @@ async function renderProfileList() {
       <div class="profile-card-top">
         <div>
           <div class="profile-title">${profile.provider.toUpperCase()} · ${profile.model}</div>
-          <p class="profile-meta">${profile.name}</p>
+          <p class="profile-meta">Auto-saved as ${profile.name}</p>
         </div>
         <div class="profile-pill">Saved profile</div>
       </div>
@@ -510,7 +509,7 @@ function saveConfiguration() {
   const baseUrl = inputBaseurl.value;
   const apiKey = inputApikey.value;
   const model = getSelectedModel();
-  const name = inputProfileName.value.trim() || `${provider} · ${model}`;
+  const name = `${provider.toUpperCase()} · ${model}`;
 
   // Validation
   if (!provider) {

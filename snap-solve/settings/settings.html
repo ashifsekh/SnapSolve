@@ -206,6 +206,18 @@
         }
       }
 
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        border-top-color: var(--ss-accent);
+        border-radius: 50%;
+        display: inline-block;
+        animation: snapsolve-spin 1s linear infinite;
+        margin-right: 6px;
+        vertical-align: middle;
+      }
+
       #status-msg {
         display: none;
         padding: 12px;
@@ -516,7 +528,7 @@
                     type="button"
                     style="display: none; margin-top: 0"
                   >
-                    ⬇ Click to Load Available Models
+                    Click to load available models
                   </button>
 
                   <div
@@ -524,14 +536,7 @@
                     class="hint"
                     style="display: none; text-align: center"
                   >
-                    <span
-                      style="
-                        animation: snapsolve-spin 1s linear infinite;
-                        display: inline-block;
-                        margin-right: 6px;
-                      "
-                      >⟳</span
-                    >
+                    <span class="spinner" aria-hidden="true"></span>
                     Fetching models from provider...
                   </div>
 
@@ -562,7 +567,7 @@
                         font-size: 14px;
                       "
                     >
-                      🔄
+                      Refresh
                     </button>
                   </div>
 
@@ -580,12 +585,6 @@
                 </div>
 
                 <div class="save-row">
-                  <input
-                    type="text"
-                    id="input-profile-name"
-                    placeholder='Profile name, e.g. "Work - GPT" or "Home - Groq"'
-                  />
-
                   <button id="btn-save">Save Configuration</button>
 
                   <div id="status-msg"></div>
