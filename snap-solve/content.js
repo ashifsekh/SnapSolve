@@ -280,6 +280,65 @@ function calculateCardPosition(rect) {
   return { x, y };
 }
 
+function humanizeError(raw) {
+  const s = (raw || "").toLowerCase();
+
+  if (
+    s.includes("404") ||
+    s.includes("not found") ||
+    s.includes("no endpoint")
+  ) {
+    return "⚠ Model not found or endpoint missing.\n\nThe model you selected may have been retired or renamed by the provider.\n\n→ Open SnapSolve Settings → click 🔄 next to the model dropdown to refresh the list and select a working model.";
+  }
+
+  if (
+    s.includes("decommissioned") ||
+    s.includes("deprecated") ||
+    s.includes("sunset")
+  ) {
+    return "⚠ This model has been decommissioned by the provider.\n\n→ Open SnapSolve Settings → click 🔄 to load current models.";
+  }
+
+  if (
+    s.includes("401") ||
+    s.includes("unauthorized") ||
+    s.includes("invalid api key") ||
+    s.includes("authentication")
+  ) {
+    return "⚠ Invalid API key.\n\nYour API key was rejected by the provider.\n\n→ Open SnapSolve Settings → check your API key is correct and hasn't expired.";
+  }
+
+  if (
+    s.includes("429") ||
+    s.includes("rate limit") ||
+    s.includes("too many requests")
+  ) {
+    return "⚠ Rate limit reached.\n\nYou've sent too many requests. Wait a moment and try again.\n\nIf this happens often, consider switching to a provider with higher limits.";
+  }
+
+  if (
+    s.includes("multimodal") ||
+    s.includes("vision") ||
+    (s.includes("image") && s.includes("not supported"))
+  ) {
+    return "⚠ This model does not support images.\n\nSnapSolve sends a screenshot, so a vision-capable model is required.\n\n→ Open Settings → select a model with 'vision', 'vl', or 'llava' in the name.";
+  }
+
+  if (s.includes("no provider") || s.includes("not configured")) {
+    return "⚠ No provider configured.\n\n→ Click the SnapSolve extension icon → Options → set up your API key and model.";
+  }
+
+  if (
+    s.includes("quota") ||
+    s.includes("billing") ||
+    s.includes("insufficient_quota")
+  ) {
+    return "⚠ API quota exceeded.\n\nYour account has run out of credits with this provider.\n\n→ Check your billing dashboard, or switch to a free-tier provider like Groq.";
+  }
+
+  return `⚠ API Error\n\n${raw}\n\n→ Open Settings and verify your provider, key, and model are correct.`;
+}
+
 // Display the answer in the card
 function displayAnswer(text, isError) {
   const skeleton = document.querySelector("#snapsolve-skeleton");
@@ -302,7 +361,7 @@ function displayAnswer(text, isError) {
   if (isError) {
     // Display error in red
     answer.style.color = "#ff6b6b";
-    answer.textContent = text;
+    answer.textContent = humanizeError(text);
   } else {
     // Process and display answer with basic markdown
     answer.style.color = "";

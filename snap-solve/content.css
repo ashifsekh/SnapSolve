@@ -66,6 +66,7 @@
 #snapsolve-answer {
   line-height: 1.65;
   color: var(--ss-text);
+  white-space: pre-wrap;
 }
 
 #snapsolve-answer p {
@@ -105,7 +106,7 @@
   height: 12px;
   background: linear-gradient(90deg, var(--ss-surface) 25%, #2e2e45 50%, var(--ss-surface) 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: snapsolve-shimmer 1.5s infinite;
   border-radius: 6px;
   margin-bottom: 10px;
 }
@@ -114,7 +115,7 @@
 .skeleton-line.medium { width: 68%; }
 .skeleton-line.short  { width: 45%; }
 
-@keyframes shimmer {
+@keyframes snapsolve-shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
@@ -129,7 +130,7 @@
 }
 
 #snapsolve-card {
-  animation: enter 0.2s ease-out forwards;
+  animation: snapsolve-enter 0.2s ease-out forwards;
 }
 
 .snapsolve-loading-dot {

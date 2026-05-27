@@ -1,14 +1,45 @@
-// Provider presets
+const VISION_KEYWORDS = [
+  "vision",
+  "vl",
+  "llava",
+  "pixtral",
+  "llama-3.2",
+  "llama-4",
+  "scout",
+  "maverick",
+  "gemini",
+  "claude",
+  "gpt-4",
+  "gpt-5",
+  "phi-3.5-vision",
+  "qwen-vl",
+  "internvl",
+  "cogvlm",
+  "moondream",
+  "bakllava",
+  "deepseek-vl",
+  "minicpm-v",
+  "idefics",
+];
+
+function isVisionCapable(modelId) {
+  if (!modelId) return false;
+  const id = modelId.toLowerCase();
+  return VISION_KEYWORDS.some((keyword) => id.includes(keyword));
+}
+
 const PROVIDER_PRESETS = {
   openai: {
     baseUrl: "https://api.openai.com/v1",
     needsKey: true,
-    models: ["gpt-4.1", "gpt-4.1-mini", "gpt-4o"],
+    fetchStyle: "openai",
+    fallbackModels: ["gpt-4.1", "gpt-4.1-mini", "gpt-4o"],
   },
   anthropic: {
     baseUrl: "https://api.anthropic.com/v1",
     needsKey: true,
-    models: [
+    fetchStyle: "anthropic",
+    fallbackModels: [
       "claude-opus-4-7",
       "claude-opus-4-6",
       "claude-sonnet-4-6",
@@ -18,39 +49,187 @@ const PROVIDER_PRESETS = {
   google: {
     baseUrl: "https://generativelanguage.googleapis.com",
     needsKey: true,
-    models: ["gemini-3.5-flash", "gemini-3.1-pro-preview", "gemini-2.5-flash"],
+    fetchStyle: "google",
+    fallbackModels: [
+      "gemini-3.5-flash",
+      "gemini-3.1-pro-preview",
+      "gemini-2.5-flash",
+    ],
   },
   nvidia: {
     baseUrl: "https://integrate.api.nvidia.com/v1",
     needsKey: true,
-    models: [
+    fetchStyle: "openai",
+    fallbackModels: [
       "meta/llama-3.2-90b-vision-instruct",
       "meta/llama-3.2-11b-vision-instruct",
       "microsoft/phi-3.5-vision-instruct",
     ],
   },
   ollama: {
-    baseUrl: "http://localhost:11434/v1",
+    baseUrl: "http://localhost:11434",
     needsKey: false,
-    models: ["llava", "llava:13b", "llama3.2-vision", "gemma3"],
+    fetchStyle: "ollama",
+    fallbackModels: ["llava", "llava:13b", "llama3.2-vision", "gemma3"],
   },
   openrouter: {
     baseUrl: "https://openrouter.ai/api/v1",
     needsKey: true,
-    models: [
+    fetchStyle: "openrouter",
+    fallbackModels: [
       "openai/gpt-4.1",
       "anthropic/claude-sonnet-4-6",
-      "google/gemini-flash-2.5",
       "meta-llama/llama-3.2-90b-vision-instruct",
     ],
   },
   groq: {
     baseUrl: "https://api.groq.com/openai/v1",
     needsKey: true,
-    models: ["meta-llama/llama-4-scout-17b-16e-instruct"],
+    fetchStyle: "openai",
+    fallbackModels: ["meta-llama/llama-4-scout-17b-16e-instruct"],
   },
-  custom: { baseUrl: "", needsKey: true, models: [] },
+  custom: {
+    baseUrl: "",
+    needsKey: true,
+    fetchStyle: "openai",
+    fallbackModels: [],
+  },
 };
+
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+async function fetchModels_openai(baseUrl, apiKey) {
+  const res = await fetch(`${baseUrl}/models`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return (data.data || [])
+    .map((model) => model.id)
+    .filter(isVisionCapable)
+    .sort();
+}
+
+async function fetchModels_anthropic(baseUrl, apiKey) {
+  const res = await fetch(`${baseUrl}/models`, {
+    headers: {
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return (data.data || [])
+    .map((model) => model.id)
+    .filter(isVisionCapable)
+    .sort();
+}
+
+async function fetchModels_google(baseUrl, apiKey) {
+  const res = await fetch(`${baseUrl}/v1beta/models?key=${apiKey}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return (data.models || [])
+    .filter(
+      (model) =>
+        model.supportedGenerationMethods &&
+        model.supportedGenerationMethods.includes("generateContent"),
+    )
+    .map((model) => model.name.replace("models/", ""))
+    .filter(isVisionCapable)
+    .sort();
+}
+
+async function fetchModels_ollama(baseUrl) {
+  const res = await fetch(`${baseUrl}/api/tags`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return (data.models || []).map((model) => model.name).sort();
+}
+
+async function fetchModels_openrouter(baseUrl, apiKey) {
+  const headers = {};
+  if (apiKey && apiKey.trim()) {
+    headers.Authorization = `Bearer ${apiKey}`;
+  }
+
+  const res = await fetch(`${baseUrl}/models`, { headers });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return (data.data || [])
+    .filter((model) => {
+      const modality = model?.architecture?.modality || "";
+      return modality.includes("image") || isVisionCapable(model.id);
+    })
+    .map((model) => model.id)
+    .sort();
+}
+
+async function fetchModelsForProvider(provider, baseUrl, apiKey) {
+  const preset = PROVIDER_PRESETS[provider];
+  if (!preset) throw new Error("Unknown provider");
+
+  switch (preset.fetchStyle) {
+    case "openai":
+      return await fetchModels_openai(baseUrl, apiKey);
+    case "anthropic":
+      return await fetchModels_anthropic(baseUrl, apiKey);
+    case "google":
+      return await fetchModels_google(baseUrl, apiKey);
+    case "ollama":
+      return await fetchModels_ollama(baseUrl);
+    case "openrouter":
+      return await fetchModels_openrouter(baseUrl, apiKey);
+    default:
+      return await fetchModels_openai(baseUrl, apiKey);
+  }
+}
+
+async function getCachedModels(provider, baseUrl, apiKey) {
+  const key = `snapsolve_modelcache_${provider}`;
+  try {
+    const result = await chrome.storage.local.get(key);
+    const entry = result[key];
+    if (!entry) return null;
+    if (Date.now() - entry.timestamp > CACHE_TTL_MS) return null;
+    if (entry.baseUrl && entry.baseUrl !== baseUrl) return null;
+    if (entry.source === "fallback" && apiKey && apiKey.trim()) return null;
+    return entry;
+  } catch {
+    return null;
+  }
+}
+
+async function setCachedModels(provider, models, source, baseUrl) {
+  const key = `snapsolve_modelcache_${provider}`;
+  await chrome.storage.local.set({
+    [key]: { models, timestamp: Date.now(), source, baseUrl },
+  });
+}
+
+async function bustModelCache(provider) {
+  const key = `snapsolve_modelcache_${provider}`;
+  await chrome.storage.local.remove(key);
+}
+
+async function getModelsWithCache(provider, baseUrl, apiKey) {
+  const cached = await getCachedModels(provider, baseUrl, apiKey);
+  if (cached) return { models: cached.models, source: cached.source };
+
+  try {
+    const models = await fetchModelsForProvider(provider, baseUrl, apiKey);
+    if (models.length > 0) {
+      await setCachedModels(provider, models, "live", baseUrl);
+      return { models, source: "live" };
+    }
+  } catch (err) {
+    console.warn(`SnapSolve: model fetch failed for ${provider}:`, err.message);
+  }
+
+  const fallback = PROVIDER_PRESETS[provider]?.fallbackModels || [];
+  await setCachedModels(provider, fallback, "fallback", baseUrl);
+  return { models: fallback, source: "fallback" };
+}
 
 // DOM elements
 const providerSelect = document.getElementById("provider-select");
@@ -62,6 +241,10 @@ const inputBaseurl = document.getElementById("input-baseurl");
 const inputApikey = document.getElementById("input-apikey");
 const selectModel = document.getElementById("select-model");
 const inputModelCustom = document.getElementById("input-model-custom");
+const btnLoadModels = document.getElementById("btn-load-models");
+const modelLoading = document.getElementById("model-loading");
+const btnRefreshModels = document.getElementById("btn-refresh-models");
+const modelSourceBadge = document.getElementById("model-source-badge");
 const profileList = document.getElementById("profile-list");
 const inputProfileName = document.getElementById("input-profile-name");
 const btnSave = document.getElementById("btn-save");
@@ -70,6 +253,19 @@ const statusMsg = document.getElementById("status-msg");
 // Event listeners
 providerSelect.addEventListener("change", handleProviderChange);
 btnSave.addEventListener("click", saveConfiguration);
+btnLoadModels.addEventListener("click", () => {
+  const provider = providerSelect.value;
+  if (provider) populateModelDropdown(provider, false);
+});
+btnRefreshModels.addEventListener("click", () => {
+  const provider = providerSelect.value;
+  if (provider) populateModelDropdown(provider, true);
+});
+inputApikey.addEventListener("blur", () => {
+  const provider = providerSelect.value;
+  const key = inputApikey.value.trim();
+  if (provider && key) populateModelDropdown(provider, false);
+});
 
 // Load saved configuration on page load
 document.addEventListener("DOMContentLoaded", loadConfiguration);
@@ -122,26 +318,21 @@ async function renderProfileList() {
       const p = profiles[btn.dataset.index];
 
       document.getElementById("provider-select").value = p.provider;
-      document
-        .getElementById("provider-select")
-        .dispatchEvent(new Event("change"));
+      document.getElementById("input-apikey").value = p.apiKey;
+      await handleProviderChange({ baseUrl: p.baseUrl, apiKey: p.apiKey });
 
-      setTimeout(() => {
-        document.getElementById("input-baseurl").value = p.baseUrl;
-        document.getElementById("input-apikey").value = p.apiKey;
+      const sel = document.getElementById("select-model");
+      const customInput = document.getElementById("input-model-custom");
+      if ([...sel.options].some((o) => o.value === p.model)) {
+        sel.value = p.model;
+        customInput.style.display = "none";
+      } else {
+        sel.value = "__other__";
+        customInput.style.display = "block";
+        customInput.value = p.model;
+      }
 
-        const sel = document.getElementById("select-model");
-        if ([...sel.options].some((o) => o.value === p.model)) {
-          sel.value = p.model;
-          document.getElementById("input-model-custom").style.display = "none";
-        } else {
-          sel.value = "__other__";
-          document.getElementById("input-model-custom").style.display = "block";
-          document.getElementById("input-model-custom").value = p.model;
-        }
-
-        showStatus(`✓ Loaded profile: ${p.name}`, "green");
-      }, 50);
+      showStatus(`✓ Loaded profile: ${p.name}`, "green");
     });
   });
 
@@ -155,24 +346,37 @@ async function renderProfileList() {
   });
 }
 
-function handleProviderChange() {
+async function handleProviderChange(restoreConfig = null) {
   const selectedProvider = providerSelect.value;
+  const preset = PROVIDER_PRESETS[selectedProvider];
 
   // Hide all fields initially
   fieldBaseurl.style.display = "none";
   fieldApikey.style.display = "none";
   fieldModel.style.display = "none";
   fieldOllamaNotice.style.display = "none";
-  selectModel.style.display = "block";
+  btnLoadModels.style.display = "none";
+  modelLoading.style.display = "none";
+  btnRefreshModels.style.display = "none";
+  modelSourceBadge.style.display = "none";
+  selectModel.style.display = "none";
   inputModelCustom.style.display = "none";
 
-  if (!selectedProvider) return;
-
-  const preset = PROVIDER_PRESETS[selectedProvider];
+  if (!selectedProvider || !preset) {
+    selectModel.innerHTML = "";
+    return;
+  }
 
   // Show base URL field and populate
   fieldBaseurl.style.display = "block";
-  inputBaseurl.value = preset.baseUrl;
+  if (restoreConfig && typeof restoreConfig.baseUrl === "string") {
+    inputBaseurl.value = restoreConfig.baseUrl;
+  } else {
+    inputBaseurl.value = preset.baseUrl;
+    if (selectedProvider === "custom") {
+      inputBaseurl.value = "";
+    }
+  }
 
   // Show API key field or notice based on needsKey
   if (preset.needsKey) {
@@ -185,64 +389,111 @@ function handleProviderChange() {
 
   // Show model field and set placeholder
   fieldModel.style.display = "block";
-  populateModelDropdown(selectedProvider);
-
-  // Make base URL editable for custom provider
-  if (selectedProvider === "custom") {
-    inputBaseurl.value = "";
-  }
+  await populateModelDropdown(selectedProvider, false);
 }
 
-function populateModelDropdown(provider) {
-  const select = document.getElementById("select-model");
-  const customInput = document.getElementById("input-model-custom");
+async function populateModelDropdown(provider, forceRefresh = false) {
   const preset = PROVIDER_PRESETS[provider];
+  if (!preset) return;
 
-  select.innerHTML = ""; // clear old options
-
-  if (!preset || preset.models.length === 0) {
-    // Custom provider - hide dropdown, show text input
-    select.style.display = "none";
-    customInput.style.display = "block";
+  if (provider === "custom") {
+    btnLoadModels.style.display = "none";
+    modelLoading.style.display = "none";
+    selectModel.style.display = "none";
+    btnRefreshModels.style.display = "none";
+    modelSourceBadge.style.display = "none";
+    inputModelCustom.style.display = "block";
+    inputModelCustom.placeholder =
+      "Type exact model name (e.g. my-custom-model-v2)";
     return;
   }
 
-  select.style.display = "block";
-  customInput.style.display = "none";
+  const baseUrl = inputBaseurl.value.trim() || preset.baseUrl;
+  const apiKey = inputApikey.value.trim();
 
-  // Add all model options
-  preset.models.forEach((m, i) => {
+  if (provider !== "ollama" && preset.needsKey && !apiKey) {
+    btnLoadModels.style.display = "block";
+    selectModel.style.display = "none";
+    inputModelCustom.style.display = "none";
+    btnRefreshModels.style.display = "none";
+    modelLoading.style.display = "none";
+    modelSourceBadge.style.display = "none";
+    return;
+  }
+
+  if (forceRefresh) {
+    await bustModelCache(provider);
+  }
+
+  btnLoadModels.style.display = "none";
+  modelLoading.style.display = "block";
+  selectModel.style.display = "none";
+  btnRefreshModels.style.display = "none";
+  modelSourceBadge.style.display = "none";
+  inputModelCustom.style.display = "none";
+
+  const { models, source } = await getModelsWithCache(
+    provider,
+    baseUrl,
+    apiKey,
+  );
+
+  modelLoading.style.display = "none";
+
+  if (provider === "custom" || models.length === 0) {
+    selectModel.style.display = "none";
+    inputModelCustom.style.display = "block";
+    btnRefreshModels.style.display = "none";
+    return;
+  }
+
+  selectModel.innerHTML = "";
+
+  models.forEach((modelName, index) => {
     const opt = document.createElement("option");
-    opt.value = m;
-    // First model gets a ★ to signal it's recommended
-    opt.textContent = i === 0 ? `★ ${m} (recommended)` : m;
-    select.appendChild(opt);
+    opt.value = modelName;
+    opt.textContent = index === 0 ? `★ ${modelName}` : modelName;
+    selectModel.appendChild(opt);
   });
 
-  // Always add an "Other" escape hatch at the bottom
   const otherOpt = document.createElement("option");
   otherOpt.value = "__other__";
   otherOpt.textContent = "Other (type manually)...";
-  select.appendChild(otherOpt);
+  selectModel.appendChild(otherOpt);
 
-  // When user picks "Other", show the text input
-  select.onchange = () => {
-    if (select.value === "__other__") {
-      customInput.style.display = "block";
-      customInput.focus();
+  selectModel.style.display = "block";
+  btnRefreshModels.style.display = "inline-block";
+  inputModelCustom.style.display = "none";
+
+  modelSourceBadge.style.display = "inline-flex";
+  if (source === "live") {
+    modelSourceBadge.textContent = "● Live";
+    modelSourceBadge.style.background = "rgba(74,222,128,0.15)";
+    modelSourceBadge.style.color = "#4ade80";
+  } else {
+    modelSourceBadge.textContent = "⚠ Offline list";
+    modelSourceBadge.style.background = "rgba(251,191,36,0.15)";
+    modelSourceBadge.style.color = "#fbbf24";
+  }
+
+  selectModel.onchange = () => {
+    if (selectModel.value === "__other__") {
+      inputModelCustom.style.display = "block";
+      inputModelCustom.focus();
     } else {
-      customInput.style.display = "none";
+      inputModelCustom.style.display = "none";
     }
   };
 }
 
 function getSelectedModel() {
-  const select = document.getElementById("select-model");
-  const customInput = document.getElementById("input-model-custom");
-  if (select.style.display === "none" || select.value === "__other__") {
-    return customInput.value.trim();
+  if (
+    selectModel.style.display === "none" ||
+    selectModel.value === "__other__"
+  ) {
+    return inputModelCustom.value.trim();
   }
-  return select.value;
+  return selectModel.value;
 }
 
 function saveConfiguration() {
@@ -291,29 +542,28 @@ function saveConfiguration() {
 }
 
 function loadConfiguration() {
-  chrome.storage.local.get("snapsolve_config", (result) => {
+  chrome.storage.local.get("snapsolve_config", async (result) => {
     if (result.snapsolve_config) {
       const config = result.snapsolve_config;
 
       // Set provider dropdown
       providerSelect.value = config.provider;
 
-      // Trigger change event to show fields
-      providerSelect.dispatchEvent(new Event("change"));
-
-      // Populate fields with saved values
-      inputBaseurl.value = config.baseUrl;
+      // Trigger change flow to show fields and hydrate models
       inputApikey.value = config.apiKey;
-      const select = document.getElementById("select-model");
-      const options = Array.from(select.options).map((o) => o.value);
+      await handleProviderChange(config);
+
+      const options = Array.from(selectModel.options).map(
+        (option) => option.value,
+      );
 
       if (options.includes(config.model)) {
-        select.value = config.model;
+        selectModel.value = config.model;
+        inputModelCustom.style.display = "none";
       } else {
-        // It's a custom model not in the list
-        select.value = "__other__";
-        document.getElementById("input-model-custom").style.display = "block";
-        document.getElementById("input-model-custom").value = config.model;
+        selectModel.value = "__other__";
+        inputModelCustom.style.display = "block";
+        inputModelCustom.value = config.model;
       }
     }
   });

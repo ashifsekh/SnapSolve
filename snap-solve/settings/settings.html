@@ -85,6 +85,15 @@
         transform: translateY(-1px);
       }
 
+      @keyframes snapsolve-spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
       #status-msg {
         display: none;
         padding: 12px;
@@ -155,14 +164,97 @@
         required.
       </div>
 
-      <div id="field-model" class="field">
-        <label>Model</label>
-        <select id="select-model"></select>
+      <div id="field-model" style="display: none">
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <span>Model</span>
+          <span
+            id="model-source-badge"
+            style="
+              display: none;
+              font-size: 10px;
+              padding: 2px 7px;
+              border-radius: 10px;
+              font-weight: 500;
+            "
+          ></span>
+        </label>
+
+        <button
+          id="btn-load-models"
+          type="button"
+          style="
+            display: none;
+            width: 100%;
+            padding: 10px;
+            background: #2a2a3a;
+            border: 1px dashed #7c6af7;
+            color: #7c6af7;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-bottom: 8px;
+          "
+        >
+          ⬇ Click to Load Available Models
+        </button>
+
+        <div
+          id="model-loading"
+          style="
+            display: none;
+            color: #888;
+            font-size: 13px;
+            padding: 10px 0;
+            text-align: center;
+          "
+        >
+          <span
+            style="
+              animation: snapsolve-spin 1s linear infinite;
+              display: inline-block;
+            "
+            >⟳</span
+          >
+          Fetching models from provider...
+        </div>
+
+        <div style="display: flex; gap: 6px; align-items: center">
+          <select id="select-model" style="flex: 1; display: none"></select>
+          <button
+            id="btn-refresh-models"
+            type="button"
+            title="Refresh model list"
+            style="
+              display: none;
+              background: #22222f;
+              border: 1px solid #2e2e3f;
+              color: #888;
+              border-radius: 8px;
+              cursor: pointer;
+              padding: 8px 10px;
+              font-size: 14px;
+            "
+          >
+            🔄
+          </button>
+        </div>
+
         <input
           type="text"
           id="input-model-custom"
-          placeholder="Type exact model name..."
-          style="display: none; margin-top: 8px"
+          placeholder="Type exact model name (e.g. my-custom-model-v2)"
+          style="
+            display: none;
+            margin-top: 8px;
+            width: 100%;
+            box-sizing: border-box;
+          "
         />
       </div>
 
