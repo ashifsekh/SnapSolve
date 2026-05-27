@@ -7,7 +7,48 @@ chrome.commands.onCommand.addListener((command) => {
       }
     });
   }
+
+  if (command === "cycle-profile") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        sendCycleMessage(tabs[0].id);
+      }
+    });
+  }
 });
+
+async function sendCycleMessage(tabId) {
+  // Try to send cycleProfile to the tab; if there's no receiver, inject content.js and retry
+  chrome.tabs.sendMessage(tabId, { action: "cycleProfile" }, async () => {
+    if (chrome.runtime.lastError) {
+      const lastErrorMessage = chrome.runtime.lastError.message || "";
+      if (lastErrorMessage.includes("Receiving end does not exist")) {
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId },
+            files: ["content.js"],
+          });
+          // retry once
+          chrome.tabs.sendMessage(tabId, { action: "cycleProfile" }, () => {
+            if (chrome.runtime.lastError) {
+              console.warn(
+                "SnapSolve cycleProfile retry failed:",
+                chrome.runtime.lastError.message,
+              );
+            }
+          });
+        } catch (err) {
+          console.warn(
+            "SnapSolve could not inject content script for cycleProfile:",
+            err,
+          );
+        }
+      } else {
+        console.warn("sendCycleMessage error:", lastErrorMessage);
+      }
+    }
+  });
+}
 
 async function sendActivateMessage(tabId) {
   chrome.tabs.sendMessage(tabId, { action: "activate" }, async () => {
@@ -42,6 +83,41 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Handle the capture and query action in the background script
     handleCaptureAndQuery(message.rect, sender.tab.id, sendResponse);
     return true; // Keep the message channel open for sendResponse
+  }
+
+  if (message.action === "notifyModelChange") {
+    try {
+      const title = message.title || "SnapSolve";
+      const msg = message.message || "Model changed";
+      const nid = `snapsolve-${Date.now()}`;
+      chrome.notifications.create(
+        nid,
+        {
+          type: "basic",
+          title: title,
+          message: msg,
+          iconUrl: "icons/icon48.png",
+        },
+        () => {
+          if (chrome.runtime.lastError) {
+            console.warn(
+              "Notification create failed:",
+              chrome.runtime.lastError.message,
+            );
+            // Inform the originating tab to show a fallback toast if possible
+            if (sender && sender.tab && sender.tab.id) {
+              chrome.tabs.sendMessage(sender.tab.id, {
+                action: "notificationFailed",
+                reason: chrome.runtime.lastError.message,
+              });
+            }
+          }
+        },
+      );
+    } catch (e) {
+      console.warn("Could not create notification:", e);
+    }
+    return;
   }
 });
 

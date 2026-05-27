@@ -3,12 +3,7 @@
   "name": "SnapSolve",
   "version": "1.0.0",
   "description": "Instantly solve on-screen questions using your own AI API key",
-  "permissions": [
-    "storage",
-    "activeTab",
-    "scripting",
-    "tabs"
-  ],
+  "permissions": ["storage", "activeTab", "scripting", "tabs", "notifications"],
   "host_permissions": [
     "<all_urls>",
     "http://localhost/*",
@@ -34,6 +29,13 @@
         "mac": "Command+Shift+E"
       },
       "description": "Activate SnapSolve region selector"
+    },
+    "cycle-profile": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Cycle to next saved SnapSolve profile"
     }
   },
   "icons": {

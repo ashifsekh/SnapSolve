@@ -9,6 +9,78 @@ let selectionEl = null;
 let isDragging = false;
 let activeCard = null;
 
+// Handle cycling profiles and toasts
+async function handleCycleProfile() {
+  try {
+    const data = await chrome.storage.local.get([
+      "snapsolve_profiles",
+      "snapsolve_config",
+    ]);
+    const profiles = data.snapsolve_profiles || [];
+    const config = data.snapsolve_config || {};
+
+    if (!profiles || profiles.length < 2) {
+      showProfileToast(
+        "No profiles to cycle",
+        "Add multiple profiles in settings",
+        "warning",
+      );
+      return;
+    }
+
+    // Find current index by matching provider + model
+    const currentKey = `${config.provider || ""} - ${config.model || ""}`;
+    let currentIndex = profiles.findIndex(
+      (p) => `${p.provider} - ${p.model}` === currentKey,
+    );
+    if (currentIndex === -1) currentIndex = 0;
+
+    const nextIndex = (currentIndex + 1) % profiles.length;
+    const nextProfile = profiles[nextIndex];
+
+    // Persist next profile as active config
+    await chrome.storage.local.set({ snapsolve_config: nextProfile });
+
+    const title = `Switched to profile ${nextIndex + 1} of ${profiles.length}`;
+    const subtitle = `${nextProfile.provider.toUpperCase()} - ${nextProfile.model}`;
+    showProfileToast(title, subtitle, "success");
+  } catch (err) {
+    showProfileToast(
+      "Could not cycle profiles",
+      err.message || "Unknown error",
+      "error",
+    );
+  }
+}
+
+function showProfileToast(title, subtitle, type = "info") {
+  // Remove existing toast
+  const existing = document.getElementById("snapsolve-toast");
+  if (existing) existing.remove();
+
+  const toast = document.createElement("div");
+  toast.id = "snapsolve-toast";
+  toast.className = `snapsolve-toast snapsolve-toast-${type}`;
+  toast.style.pointerEvents = "none";
+
+  const t = document.createElement("div");
+  t.className = "snapsolve-toast-title";
+  t.textContent = title;
+  const s = document.createElement("div");
+  s.className = "snapsolve-toast-sub";
+  s.textContent = subtitle;
+
+  toast.appendChild(t);
+  if (subtitle) toast.appendChild(s);
+  document.body.appendChild(toast);
+
+  // Auto-dismiss after 2s
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 400);
+  }, 2000);
+}
+
 // Listen for activation message from background script
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "activate") {
@@ -27,6 +99,18 @@ chrome.runtime.onMessage.addListener((message) => {
 
     // Activate overlay
     if (!isActive) activateOverlay();
+    return;
+  }
+
+  if (message.action === "cycleProfile") {
+    handleCycleProfile();
+    return;
+  }
+
+  if (message.action === "notificationFailed") {
+    const reason = message.reason || "Native notifications unavailable";
+    showProfileToast("Notification failed", reason, "warning");
+    return;
   }
 });
 
@@ -48,6 +132,26 @@ function activateOverlay() {
   overlayEl.style.userSelect = "none";
   overlayEl.style.pointerEvents = "auto";
   overlayEl.style.touchAction = "none";
+  // Send native notification via background
+  try {
+    chrome.runtime.sendMessage(
+      {
+        action: "notifyModelChange",
+        title: `Model changed to ${nextProfile.model}`,
+        message: subtitle,
+      },
+      (resp) => {
+        // If background reports failure or no response, show fallback toast
+        if (!resp || resp.ok === false) {
+          const reason =
+            (resp && resp.reason) || "Native notifications unavailable";
+          showProfileToast("Notification failed", reason, "warning");
+        }
+      },
+    );
+  } catch (e) {
+    // ignore
+  }
   overlayEl.style.overscrollBehavior = "none";
 
   document.body.appendChild(overlayEl);
