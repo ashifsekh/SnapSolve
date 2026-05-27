@@ -3,85 +3,197 @@
   <head>
     <title>SnapSolve Settings</title>
     <style>
+      :root {
+        --ss-bg: #0f0f13;
+        --ss-panel: #1a1a24;
+        --ss-panel-2: #22222f;
+        --ss-border: #2e2e3f;
+        --ss-text: #e8e8f0;
+        --ss-muted: #888899;
+        --ss-accent: #7c6af7;
+        --ss-accent-2: #8d7bf8;
+        --ss-success: #4ade80;
+        --ss-danger: #ff6b6b;
+        --ss-radius: 16px;
+        --ss-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        background: #0f0f13;
-        color: #e8e8f0;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(124, 106, 247, 0.12),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(74, 222, 128, 0.08),
+            transparent 22%
+          ),
+          var(--ss-bg);
+        color: var(--ss-text);
         font-family:
           system-ui,
           -apple-system,
           sans-serif;
         margin: 0;
-        padding: 20px;
-        display: flex;
-        justify-content: center;
-      }
-
-      .container {
-        width: 100%;
-        max-width: 480px;
-        background: #1a1a24;
-        border-radius: 12px;
+        min-height: 100vh;
         padding: 24px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
       }
 
-      h1 {
-        margin: 0 0 4px 0;
-        font-size: 24px;
-        color: #7c6af7;
+      .app-shell {
+        width: 100%;
+        max-width: 1440px;
+        margin: 0 auto;
       }
 
-      .subtitle {
-        margin: 0 0 24px 0;
-        color: #888899;
-        font-size: 14px;
+      .hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 24px;
+        padding: 6px 2px 2px;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(28px, 4vw, 40px);
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: #ffffff;
+      }
+
+      .hero .subtitle {
+        margin: 10px 0 0;
+        color: var(--ss-muted);
+        font-size: 15px;
+        max-width: 64ch;
+      }
+
+      .hero-badge {
+        align-self: center;
+        padding: 10px 14px;
+        border: 1px solid rgba(124, 106, 247, 0.25);
+        border-radius: 999px;
+        background: rgba(124, 106, 247, 0.1);
+        color: #d9d3ff;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.95fr);
+        gap: 20px;
+        align-items: start;
+      }
+
+      .panel {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 18%),
+          var(--ss-panel);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: var(--ss-radius);
+        box-shadow: var(--ss-shadow);
+      }
+
+      .panel-header {
+        padding: 20px 22px 0;
+      }
+
+      .panel-header h2 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        color: #ffffff;
+      }
+
+      .panel-header p {
+        margin: 8px 0 0;
+        color: var(--ss-muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .panel-body {
+        padding: 20px 22px 22px;
+      }
+
+      .profile-panel {
+        position: sticky;
+        top: 24px;
+      }
+
+      .section-card {
+        background: var(--ss-panel-2);
+        border: 1px solid var(--ss-border);
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .section-label {
+        display: block;
+        margin: 0 0 10px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: #f2f2fb;
       }
 
       select,
       input {
         width: 100%;
-        padding: 12px;
+        padding: 12px 13px;
         background: #22222f;
-        border: 1px solid #2e2e3f;
-        border-radius: 8px;
-        color: #e8e8f0;
+        border: 1px solid #333344;
+        border-radius: 10px;
+        color: var(--ss-text);
         font-size: 14px;
-        margin: 8px 0 16px 0;
+        margin: 0;
         transition: all 0.2s ease;
       }
 
       select:focus,
       input:focus {
-        outline: 2px solid #7c6af7;
-      }
-
-      label {
-        display: block;
-        margin: 16px 0 8px 0;
-        font-size: 14px;
-        color: #e8e8f0;
+        outline: 2px solid var(--ss-accent);
+        outline-offset: 1px;
       }
 
       .field {
         display: none;
+        margin-top: 14px;
+      }
+
+      .hint {
+        margin-top: 8px;
+        color: var(--ss-muted);
+        font-size: 12px;
+        line-height: 1.45;
       }
 
       button {
         width: 100%;
         padding: 14px;
-        background: #7c6af7;
+        background: var(--ss-accent);
         color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 16px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s ease;
-        margin: 24px 0 16px 0;
+        margin: 18px 0 0;
       }
 
       button:hover {
-        background: #8d7bf8;
+        background: var(--ss-accent-2);
         transform: translateY(-1px);
       }
 
@@ -97,186 +209,416 @@
       #status-msg {
         display: none;
         padding: 12px;
-        border-radius: 8px;
-        margin: 16px 0;
+        border-radius: 10px;
+        margin: 16px 0 0;
         text-align: center;
+        border: 1px solid transparent;
       }
 
       .notice {
-        background: rgba(30, 144, 255, 0.15);
-        border: 1px solid rgba(30, 144, 255, 0.3);
-        border-radius: 8px;
+        background: rgba(30, 144, 255, 0.14);
+        border: 1px solid rgba(30, 144, 255, 0.26);
+        border-radius: 12px;
         padding: 12px;
-        margin: 16px 0;
+        margin: 0;
         font-size: 13px;
         color: #a0c8ff;
+        line-height: 1.5;
       }
 
       .info-card {
-        background: #22222f;
-        border: 1px solid #2e2e3f;
-        border-radius: 8px;
-        padding: 16px;
-        margin-top: 24px;
+        background: linear-gradient(
+          180deg,
+          rgba(124, 106, 247, 0.08),
+          rgba(255, 255, 255, 0.02)
+        );
+        border: 1px solid rgba(124, 106, 247, 0.18);
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-top: 18px;
         font-size: 13px;
-        color: #888899;
+        color: #b7b7c8;
+        line-height: 1.5;
+      }
+
+      .stack {
+        display: grid;
+        gap: 14px;
+      }
+
+      .profiles-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .profiles-toolbar h3 {
+        margin: 0;
+        font-size: 15px;
+        color: #ffffff;
+      }
+
+      .profiles-toolbar span {
+        font-size: 12px;
+        color: var(--ss-muted);
+      }
+
+      #profile-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .profile-empty {
+        padding: 14px;
+        border: 1px dashed var(--ss-border);
+        border-radius: 12px;
+        color: var(--ss-muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .profile-card {
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid var(--ss-border);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 15%),
+          #20202c;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+        transition:
+          transform 0.18s ease,
+          border-color 0.18s ease,
+          background 0.18s ease;
+      }
+
+      .profile-card:hover {
+        transform: translateY(-1px);
+        border-color: rgba(124, 106, 247, 0.35);
+        background: #242432;
+      }
+
+      .profile-card-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .profile-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #ffffff;
+        margin: 0 0 4px;
+      }
+
+      .profile-meta {
+        font-size: 12px;
+        color: var(--ss-muted);
+        line-height: 1.45;
+        margin: 0;
+      }
+
+      .profile-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: rgba(124, 106, 247, 0.12);
+        color: #d9d3ff;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+
+      .profile-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .profile-actions button {
+        width: auto;
+        margin: 0;
+        padding: 8px 12px;
+        font-size: 13px;
+        border-radius: 8px;
+      }
+
+      .profile-actions .btn-load-profile {
+        background: #7c6af7;
+      }
+
+      .profile-actions .btn-delete-profile {
+        background: #3a1a1a;
+        color: #ffb5b5;
+      }
+
+      .profile-actions .btn-delete-profile:hover {
+        background: #4a1f1f;
+      }
+
+      .config-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .save-row {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .field-profiles {
+        display: none;
+      }
+
+      @media (max-width: 1100px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .profile-panel {
+          position: static;
+        }
+      }
+
+      @media (max-width: 640px) {
+        body {
+          padding: 14px;
+        }
+
+        .hero {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .hero-badge {
+          white-space: normal;
+        }
+
+        .panel-header,
+        .panel-body {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+
+        .panel-body {
+          padding-bottom: 18px;
+        }
+
+        .profile-actions {
+          flex-direction: column;
+        }
+
+        .profile-actions button {
+          width: 100%;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>SnapSolve</h1>
-      <p class="subtitle">Configure your AI provider</p>
-
-      <label for="provider-select">AI Provider</label>
-      <select id="provider-select">
-        <option value="" disabled selected>-- Select a Provider --</option>
-        <option value="openai">OpenAI</option>
-        <option value="anthropic">Anthropic</option>
-        <option value="google">Google Gemini</option>
-        <option value="nvidia">NVIDIA NIM</option>
-        <option value="ollama">Ollama (Local)</option>
-        <option value="openrouter">OpenRouter</option>
-        <option value="groq">Groq</option>
-        <option value="custom">Custom / Other</option>
-      </select>
-
-      <div id="field-baseurl" class="field">
-        <label for="input-baseurl">Base URL</label>
-        <input
-          type="text"
-          id="input-baseurl"
-          placeholder="https://api.example.com/v1"
-        />
-      </div>
-
-      <div id="field-apikey" class="field">
-        <label for="input-apikey">API Key</label>
-        <input
-          type="password"
-          id="input-apikey"
-          placeholder="Paste your API key here"
-        />
-      </div>
-
-      <div id="field-ollama-notice" class="notice field">
-        Ollama runs locally. Make sure Ollama Desktop is open. No API key is
-        required.
-      </div>
-
-      <div id="field-model" style="display: none">
-        <label
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-          "
-        >
-          <span>Model</span>
-          <span
-            id="model-source-badge"
-            style="
-              display: none;
-              font-size: 10px;
-              padding: 2px 7px;
-              border-radius: 10px;
-              font-weight: 500;
-            "
-          ></span>
-        </label>
-
-        <button
-          id="btn-load-models"
-          type="button"
-          style="
-            display: none;
-            width: 100%;
-            padding: 10px;
-            background: #2a2a3a;
-            border: 1px dashed #7c6af7;
-            color: #7c6af7;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            margin-bottom: 8px;
-          "
-        >
-          ⬇ Click to Load Available Models
-        </button>
-
-        <div
-          id="model-loading"
-          style="
-            display: none;
-            color: #888;
-            font-size: 13px;
-            padding: 10px 0;
-            text-align: center;
-          "
-        >
-          <span
-            style="
-              animation: snapsolve-spin 1s linear infinite;
-              display: inline-block;
-            "
-            >⟳</span
-          >
-          Fetching models from provider...
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <h1>SnapSolve</h1>
+          <p class="subtitle">
+            Configure your provider on the left and pick from saved profiles on
+            the right.
+          </p>
         </div>
+        <div class="hero-badge">Ctrl+Shift+E activates the screen selector</div>
+      </header>
 
-        <div style="display: flex; gap: 6px; align-items: center">
-          <select id="select-model" style="flex: 1; display: none"></select>
-          <button
-            id="btn-refresh-models"
-            type="button"
-            title="Refresh model list"
-            style="
-              display: none;
-              background: #22222f;
-              border: 1px solid #2e2e3f;
-              color: #888;
-              border-radius: 8px;
-              cursor: pointer;
-              padding: 8px 10px;
-              font-size: 14px;
-            "
-          >
-            🔄
-          </button>
-        </div>
+      <main class="layout">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>AI Configuration</h2>
+            <p>
+              Choose a provider, load a model, and save the setup you want to
+              use for screenshots.
+            </p>
+          </div>
 
-        <input
-          type="text"
-          id="input-model-custom"
-          placeholder="Type exact model name (e.g. my-custom-model-v2)"
-          style="
-            display: none;
-            margin-top: 8px;
-            width: 100%;
-            box-sizing: border-box;
-          "
-        />
-      </div>
+          <div class="panel-body">
+            <div class="stack">
+              <div class="section-card">
+                <label class="section-label" for="provider-select"
+                  >AI Provider</label
+                >
+                <select id="provider-select">
+                  <option value="" disabled selected>
+                    -- Select a Provider --
+                  </option>
+                  <option value="openai">OpenAI</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="google">Google Gemini</option>
+                  <option value="nvidia">NVIDIA NIM</option>
+                  <option value="ollama">Ollama (Local)</option>
+                  <option value="openrouter">OpenRouter</option>
+                  <option value="groq">Groq</option>
+                  <option value="custom">Custom / Other</option>
+                </select>
 
-      <!-- Saved Profiles -->
-      <div id="field-profiles">
-        <label>Saved Profiles</label>
-        <div id="profile-list"></div>
-        <input
-          type="text"
-          id="input-profile-name"
-          placeholder='Profile name, e.g. "Work - GPT" or "Home - Groq"'
-        />
-      </div>
+                <div id="field-baseurl" class="field">
+                  <label class="section-label" for="input-baseurl"
+                    >Base URL</label
+                  >
+                  <input
+                    type="text"
+                    id="input-baseurl"
+                    placeholder="https://api.example.com/v1"
+                  />
+                </div>
 
-      <button id="btn-save">Save Configuration</button>
+                <div id="field-apikey" class="field">
+                  <label class="section-label" for="input-apikey"
+                    >API Key</label
+                  >
+                  <input
+                    type="password"
+                    id="input-apikey"
+                    placeholder="Paste your API key here"
+                  />
+                </div>
 
-      <div id="status-msg"></div>
+                <div id="field-ollama-notice" class="notice field">
+                  Ollama runs locally. Make sure Ollama Desktop is open. No API
+                  key is required.
+                </div>
 
-      <div class="info-card">
-        After saving, press <strong>Ctrl+Shift+E</strong> (or
-        <strong>Cmd+Shift+E</strong> on Mac) on any page to activate SnapSolve
-      </div>
+                <div id="field-model" class="field">
+                  <label
+                    class="section-label"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      gap: 10px;
+                    "
+                  >
+                    <span>Model</span>
+                    <span
+                      id="model-source-badge"
+                      style="
+                        display: none;
+                        font-size: 10px;
+                        padding: 2px 7px;
+                        border-radius: 10px;
+                        font-weight: 500;
+                      "
+                    ></span>
+                  </label>
+
+                  <button
+                    id="btn-load-models"
+                    type="button"
+                    style="display: none; margin-top: 0"
+                  >
+                    ⬇ Click to Load Available Models
+                  </button>
+
+                  <div
+                    id="model-loading"
+                    class="hint"
+                    style="display: none; text-align: center"
+                  >
+                    <span
+                      style="
+                        animation: snapsolve-spin 1s linear infinite;
+                        display: inline-block;
+                        margin-right: 6px;
+                      "
+                      >⟳</span
+                    >
+                    Fetching models from provider...
+                  </div>
+
+                  <div
+                    style="
+                      display: flex;
+                      gap: 8px;
+                      align-items: center;
+                      margin-top: 8px;
+                    "
+                  >
+                    <select
+                      id="select-model"
+                      style="flex: 1; display: none"
+                    ></select>
+                    <button
+                      id="btn-refresh-models"
+                      type="button"
+                      title="Refresh model list"
+                      style="
+                        display: none;
+                        width: auto;
+                        margin: 0;
+                        padding: 11px 12px;
+                        background: #22222f;
+                        border: 1px solid #2e2e3f;
+                        color: #888;
+                        font-size: 14px;
+                      "
+                    >
+                      🔄
+                    </button>
+                  </div>
+
+                  <input
+                    type="text"
+                    id="input-model-custom"
+                    placeholder="Type exact model name (e.g. my-custom-model-v2)"
+                    style="
+                      display: none;
+                      margin-top: 8px;
+                      width: 100%;
+                      box-sizing: border-box;
+                    "
+                  />
+                </div>
+
+                <div class="save-row">
+                  <input
+                    type="text"
+                    id="input-profile-name"
+                    placeholder='Profile name, e.g. "Work - GPT" or "Home - Groq"'
+                  />
+
+                  <button id="btn-save">Save Configuration</button>
+
+                  <div id="status-msg"></div>
+
+                  <div class="info-card">
+                    After saving, press <strong>Ctrl+Shift+E</strong> (or
+                    <strong>Cmd+Shift+E</strong> on Mac) on any page to activate
+                    SnapSolve.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel profile-panel">
+          <div class="panel-header">
+            <h2>Saved Profiles</h2>
+            <p>
+              Quickly reopen a provider and model pair from cards on the right.
+            </p>
+          </div>
+
+          <div class="panel-body">
+            <div class="profiles-toolbar">
+              <h3>Profiles</h3>
+              <span>Load or remove any saved setup</span>
+            </div>
+
+            <div id="profile-list"></div>
+          </div>
+        </aside>
+      </main>
     </div>
 
     <script src="settings.js"></script>

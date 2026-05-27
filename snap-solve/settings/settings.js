@@ -7,6 +7,10 @@ const VISION_KEYWORDS = [
   "llama-4",
   "scout",
   "maverick",
+  "kimi",
+  "ministral",
+  "mistral-large",
+  "nemotron",
   "gemini",
   "claude",
   "gpt-4",
@@ -61,9 +65,11 @@ const PROVIDER_PRESETS = {
     needsKey: true,
     fetchStyle: "openai",
     fallbackModels: [
-      "meta/llama-3.2-90b-vision-instruct",
-      "meta/llama-3.2-11b-vision-instruct",
-      "microsoft/phi-3.5-vision-instruct",
+      "meta/llama-4-maverick-17b-128e-instruct",
+      "moonshotai/kimi-k2.6",
+      "mistralai/ministral-14b-instruct-2512",
+      "mistralai/mistral-large-3-675b-instruct-2512",
+      "nvidia/nemotron-nano-12b-v2-vl",
     ],
   },
   ollama: {
@@ -287,27 +293,30 @@ async function renderProfileList() {
   profileList.innerHTML = "";
 
   if (profiles.length === 0) {
-    profileList.innerHTML =
-      '<p style="color:#888;font-size:12px;margin:6px 0">No saved profiles yet. Fill in settings and click Save Profile.</p>';
+    profileList.innerHTML = `
+      <div class="profile-empty">
+        No saved profiles yet. Save a configuration on the left, and it will appear here as a reusable card.
+      </div>
+    `;
     return;
   }
 
   profiles.forEach((profile, index) => {
-    const row = document.createElement("div");
-    row.style.cssText = `display:flex; align-items:center; gap:8px;
-      padding:8px 10px; background:#22222f; border-radius:8px; margin-bottom:6px;`;
+    const row = document.createElement("article");
+    row.className = "profile-card";
 
     row.innerHTML = `
-      <div style="flex:1">
-        <div style="font-size:13px;color:#e8e8f0;font-weight:500">${profile.name}</div>
-        <div style="font-size:11px;color:#888">${profile.provider.toUpperCase()} · ${profile.model}</div>
+      <div class="profile-card-top">
+        <div>
+          <div class="profile-title">${profile.provider.toUpperCase()} · ${profile.model}</div>
+          <p class="profile-meta">${profile.name}</p>
+        </div>
+        <div class="profile-pill">Saved profile</div>
       </div>
-      <button class="btn-load-profile" data-index="${index}"
-        style="background:#7c6af7;border:none;color:white;padding:4px 10px;
-        border-radius:6px;cursor:pointer;font-size:12px">Load</button>
-      <button class="btn-delete-profile" data-index="${index}"
-        style="background:#3a1a1a;border:none;color:#ff6b6b;padding:4px 8px;
-        border-radius:6px;cursor:pointer;font-size:12px">✕</button>
+      <div class="profile-actions">
+        <button class="btn-load-profile" data-index="${index}">Load</button>
+        <button class="btn-delete-profile" data-index="${index}">Delete</button>
+      </div>
     `;
     profileList.appendChild(row);
   });
