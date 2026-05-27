@@ -41,7 +41,8 @@
           -apple-system,
           sans-serif;
         margin: 0;
-        min-height: 100vh;
+        height: 100vh;
+        overflow: hidden;
         padding: 24px;
       }
 
@@ -49,6 +50,10 @@
         width: 100%;
         max-width: 1440px;
         margin: 0 auto;
+        height: calc(100vh - 48px);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
       }
 
       .hero {
@@ -91,6 +96,8 @@
         grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.95fr);
         gap: 20px;
         align-items: start;
+        flex: 1;
+        min-height: 0;
       }
 
       .panel {
@@ -100,6 +107,9 @@
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: var(--ss-radius);
         box-shadow: var(--ss-shadow);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
       }
 
       .panel-header {
@@ -123,11 +133,19 @@
 
       .panel-body {
         padding: 20px 22px 22px;
+        min-height: 0;
       }
 
       .profile-panel {
         position: sticky;
         top: 24px;
+        height: 100%;
+      }
+
+      .profile-panel .panel-body {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
       }
 
       .section-card {
@@ -280,6 +298,25 @@
       #profile-list {
         display: grid;
         gap: 10px;
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding-right: 4px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(124, 106, 247, 0.45) transparent;
+      }
+
+      #profile-list::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      #profile-list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      #profile-list::-webkit-scrollbar-thumb {
+        background: rgba(124, 106, 247, 0.4);
+        border-radius: 999px;
       }
 
       .profile-empty {
@@ -393,6 +430,16 @@
 
         .profile-panel {
           position: static;
+          height: auto;
+        }
+
+        body {
+          overflow: auto;
+          height: auto;
+        }
+
+        .app-shell {
+          height: auto;
         }
       }
 
@@ -418,6 +465,10 @@
 
         .panel-body {
           padding-bottom: 18px;
+        }
+
+        #profile-list {
+          max-height: 45vh;
         }
 
         .profile-actions {
