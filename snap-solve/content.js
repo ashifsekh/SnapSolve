@@ -180,7 +180,7 @@ function showAnswerCard(rect, config) {
   // Card HTML structure
   card.innerHTML = `
     <div id="snapsolve-card-header">
-      <div class="snapsolve-provider-badge">${config && config.provider ? `${config.provider.toUpperCase()} · ${config.model}` : "Not configured — open Settings"}</div>
+      <div class="snapsolve-provider-badge">${config && config.provider ? `${config.provider.toUpperCase()} - ${config.model}` : "Not configured — open Settings"}</div>
       <div>
         <span id="snapsolve-loading-dot" class="snapsolve-loading-dot"></span>
         <button id="snapsolve-close">×</button>

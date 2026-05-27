@@ -307,7 +307,7 @@ async function renderProfileList() {
     row.innerHTML = `
       <div class="profile-card-top">
         <div>
-          <div class="profile-title">${profile.provider.toUpperCase()} · ${profile.model}</div>
+          <div class="profile-title">${profile.provider.toUpperCase()} - ${profile.model}</div>
           <p class="profile-meta">Auto-saved as ${profile.name}</p>
         </div>
         <div class="profile-pill">Saved profile</div>
@@ -340,7 +340,7 @@ async function renderProfileList() {
         customInput.value = p.model;
       }
 
-      showStatus(`✓ Loaded profile: ${p.name}`, "green");
+      showStatus(`Loaded profile: ${p.name}`, "green");
     });
   });
 
@@ -475,7 +475,7 @@ async function populateModelDropdown(provider, forceRefresh = false) {
 
   modelSourceBadge.style.display = "inline-flex";
   if (source === "live") {
-    modelSourceBadge.textContent = "● Live";
+    modelSourceBadge.textContent = "Live";
     modelSourceBadge.style.background = "rgba(74,222,128,0.15)";
     modelSourceBadge.style.color = "#4ade80";
   } else {
@@ -509,7 +509,7 @@ function saveConfiguration() {
   const baseUrl = inputBaseurl.value;
   const apiKey = inputApikey.value;
   const model = getSelectedModel();
-  const name = `${provider.toUpperCase()} · ${model}`;
+  const name = `${provider.toUpperCase()} - ${model}`;
 
   // Validation
   if (!provider) {
@@ -545,7 +545,7 @@ function saveConfiguration() {
 
     await saveProfiles(profiles);
     renderProfileList();
-    showStatus(`✓ Saved & activated: ${name}`, "green");
+    showStatus(`Saved & activated: ${name}`, "green");
   });
 }
 
