@@ -1,6 +1,6 @@
 # SnapSolve
 
-![SnapSolve icon](icons/icon128.png)
+![SnapSolve icon](snap-solve/icons/icon128.png)
 
 SnapSolve is a Manifest V3 Chrome extension that captures a selected region of the current page, sends the screenshot to your chosen AI provider, and shows a concise answer back on the page. It is built with plain JavaScript, HTML, and CSS, so there is no build step or package install required.
 
@@ -124,13 +124,13 @@ SnapSolve is designed to work with providers that expose either OpenAI-compatibl
 
 ## Project Structure
 
-- `manifest.json` - extension manifest and commands
-- `background.js` - screen capture, API routing, and notification handling
-- `content.js` - selection overlay, UI card, profile cycling, and response display
-- `content.css` - in-page UI styling
-- `settings/settings.html` - settings UI
-- `settings/settings.js` - settings logic, model discovery, and profile storage
-- `icons/` - packaged extension icons
+- `snap-solve/manifest.json` - extension manifest and commands
+- `snap-solve/background.js` - screen capture, API routing, and notification handling
+- `snap-solve/content.js` - selection overlay, UI card, profile cycling, and response display
+- `snap-solve/content.css` - in-page UI styling
+- `snap-solve/settings/settings.html` - settings UI
+- `snap-solve/settings/settings.js` - settings logic, model discovery, and profile storage
+- `snap-solve/icons/` - packaged extension icons
 
 ## Notes
 
