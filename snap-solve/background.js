@@ -53,6 +53,7 @@ async function sendMessageWithOnDemandInjection(tabId, message, label) {
 
       try {
         await injectSnapSolveAssets(tabId);
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         chrome.tabs.sendMessage(tabId, message, () => {
           if (chrome.runtime.lastError) {
