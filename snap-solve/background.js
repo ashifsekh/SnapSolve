@@ -18,62 +18,74 @@ chrome.commands.onCommand.addListener((command) => {
 });
 
 async function sendCycleMessage(tabId) {
-  // Try to send cycleProfile to the tab; if there's no receiver, inject content.js and retry
-  chrome.tabs.sendMessage(tabId, { action: "cycleProfile" }, async () => {
-    if (chrome.runtime.lastError) {
-      const lastErrorMessage = chrome.runtime.lastError.message || "";
-      if (lastErrorMessage.includes("Receiving end does not exist")) {
-        try {
-          await chrome.scripting.executeScript({
-            target: { tabId },
-            files: ["content.js"],
-          });
-          // retry once
-          chrome.tabs.sendMessage(tabId, { action: "cycleProfile" }, () => {
-            if (chrome.runtime.lastError) {
-              console.warn(
-                "SnapSolve cycleProfile retry failed:",
-                chrome.runtime.lastError.message,
-              );
-            }
-          });
-        } catch (err) {
-          console.warn(
-            "SnapSolve could not inject content script for cycleProfile:",
-            err,
-          );
-        }
-      } else {
-        console.warn("sendCycleMessage error:", lastErrorMessage);
-      }
-    }
-  });
+  await sendMessageWithOnDemandInjection(
+    tabId,
+    { action: "cycleProfile" },
+    "cycleProfile",
+  );
 }
 
 async function sendActivateMessage(tabId) {
-  chrome.tabs.sendMessage(tabId, { action: "activate" }, async () => {
-    if (chrome.runtime.lastError) {
-      const lastErrorMessage = chrome.runtime.lastError.message || "";
-      if (lastErrorMessage.includes("Receiving end does not exist")) {
-        try {
-          await chrome.scripting.executeScript({
-            target: { tabId },
-            files: ["content.js"],
-          });
+  await sendMessageWithOnDemandInjection(
+    tabId,
+    { action: "activate" },
+    "activate",
+  );
+}
 
-          chrome.tabs.sendMessage(tabId, { action: "activate" }, () => {
-            if (chrome.runtime.lastError) {
-              console.warn(
-                "SnapSolve activate retry failed:",
-                chrome.runtime.lastError.message,
-              );
-            }
-          });
-        } catch (err) {
-          console.warn("SnapSolve could not inject content script:", err);
-        }
+async function sendMessageWithOnDemandInjection(tabId, message, label) {
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(tabId, message, async () => {
+      if (!chrome.runtime.lastError) {
+        resolve(true);
+        return;
       }
-    }
+
+      const lastErrorMessage = chrome.runtime.lastError.message || "";
+      if (!lastErrorMessage.includes("Receiving end does not exist")) {
+        console.warn(
+          `send${label[0].toUpperCase() + label.slice(1)}Message error:`,
+          lastErrorMessage,
+        );
+        resolve(false);
+        return;
+      }
+
+      try {
+        await injectSnapSolveAssets(tabId);
+
+        chrome.tabs.sendMessage(tabId, message, () => {
+          if (chrome.runtime.lastError) {
+            console.warn(
+              `SnapSolve ${label} retry failed:`,
+              chrome.runtime.lastError.message,
+            );
+            resolve(false);
+            return;
+          }
+
+          resolve(true);
+        });
+      } catch (err) {
+        console.warn(
+          `SnapSolve could not inject content script for ${label}:`,
+          err,
+        );
+        resolve(false);
+      }
+    });
+  });
+}
+
+async function injectSnapSolveAssets(tabId) {
+  await chrome.scripting.insertCSS({
+    target: { tabId },
+    files: ["content.css"],
+  });
+
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    files: ["content.js"],
   });
 }
 
@@ -157,22 +169,25 @@ async function cropImage(dataUrl, rect) {
   const blob = await res.blob();
   const imageBitmap = await createImageBitmap(blob);
 
-  // Account for device pixel ratio
-  const canvas = new OffscreenCanvas(
-    Math.round(rect.width * rect.devicePixelRatio),
-    Math.round(rect.height * rect.devicePixelRatio),
-  );
+  const sourceWidth = Math.round(rect.width * rect.devicePixelRatio);
+  const sourceHeight = Math.round(rect.height * rect.devicePixelRatio);
+  const maxEdge = 1200;
+  const scale = Math.min(1, maxEdge / Math.max(sourceWidth, sourceHeight));
+  const targetWidth = Math.max(1, Math.round(sourceWidth * scale));
+  const targetHeight = Math.max(1, Math.round(sourceHeight * scale));
+
+  const canvas = new OffscreenCanvas(targetWidth, targetHeight);
   const ctx = canvas.getContext("2d");
   ctx.drawImage(
     imageBitmap,
     Math.round(rect.x * rect.devicePixelRatio),
     Math.round(rect.y * rect.devicePixelRatio),
-    Math.round(rect.width * rect.devicePixelRatio),
-    Math.round(rect.height * rect.devicePixelRatio),
+    sourceWidth,
+    sourceHeight,
     0,
     0,
-    Math.round(rect.width * rect.devicePixelRatio),
-    Math.round(rect.height * rect.devicePixelRatio),
+    targetWidth,
+    targetHeight,
   );
 
   const outputBlob = await canvas.convertToBlob({ type: "image/png" });
