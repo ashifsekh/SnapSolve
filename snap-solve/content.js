@@ -316,9 +316,21 @@ function showAnswerCard(rect, config) {
 
   header.addEventListener("mousedown", (e) => {
     if (e.target === closeBtn) return;
+    e.preventDefault();
+    e.stopPropagation();
     isDraggingCard = true;
-    dragOffsetX = e.clientX - card.getBoundingClientRect().left;
-    dragOffsetY = e.clientY - card.getBoundingClientRect().top;
+
+    const cardRect = card.getBoundingClientRect();
+    dragOffsetX = e.clientX - cardRect.left;
+    dragOffsetY = e.clientY - cardRect.top;
+
+    // Switch from right-anchored layout to free drag positioning.
+    card.style.left = `${cardRect.left}px`;
+    card.style.top = `${cardRect.top}px`;
+    card.style.right = "auto";
+    card.style.bottom = "auto";
+    card.style.transform = "none";
+
     document.body.style.userSelect = "none";
     // Bring dragged card to front while dragging
     card.style.zIndex = String(2147483650);
