@@ -2,7 +2,7 @@
 
 <!-- Intro demo GIF (hosted on Google Drive) -->
 
-[![Intro demo](https://drive.google.com/uc?export=view&id=1ra6ysxUXa1Eqdi5LfMua_7gmYMbKIVAF)](https://drive.google.com/file/d/1ra6ysxUXa1Eqdi5LfMua_7gmYMbKIVAF/view?usp=share_link)
+
 
 ![SnapSolve icon](snap-solve/icons/icon128.png)
 
