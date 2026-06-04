@@ -1,8 +1,8 @@
 # SnapSolve
 
-<!-- Intro demo GIF -->
+<!-- Intro demo GIF (hosted on Google Drive) -->
 
-[![Intro demo](snap-solve/demos/intro.gif)](snap-solve/demos/intro.gif)
+[![Intro demo](https://drive.google.com/uc?export=view&id=1ra6ysxUXa1Eqdi5LfMua_7gmYMbKIVAF)](https://drive.google.com/file/d/1ra6ysxUXa1Eqdi5LfMua_7gmYMbKIVAF/view?usp=share_link)
 
 ![SnapSolve icon](snap-solve/icons/icon128.png)
 
@@ -10,21 +10,24 @@ SnapSolve is a Manifest V3 Chrome extension that captures a selected region of t
 
 ## Demo
 
-A quick demo of SnapSolve in action:
+A quick demo of SnapSolve in action (hosted on Google Drive):
 
 <p align="center">
-  <img src="snap-solve/demos/intro.gif" alt="SnapSolve demo" style="max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" />
+  <img src="https://drive.google.com/uc?export=view&id=1ra6ysxUXa1Eqdi5LfMua_7gmYMbKIVAF" alt="SnapSolve demo" style="max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" />
 </p>
 
 ### Setup video
 
-Follow this short setup video to install and configure the extension:
+Watch the setup video hosted on Google Drive:
 
 <p>
-  <video src="snap-solve/demos/setup.mp4" controls style="max-width:100%;height:auto;border:1px solid rgba(0,0,0,0.08);border-radius:8px;"> 
-    Your browser does not support the video tag. <a href="snap-solve/demos/setup.mp4">Download the setup video</a>.
-  </video>
+  <iframe src="https://drive.google.com/file/d/1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6/preview" width="720" height="405" style="max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" allow="autoplay; encrypted-media" frameborder="0"></iframe>
 </p>
+
+Direct links:
+
+- Demo GIF: https://drive.google.com/file/d/1ra6ysxUXa1Eqdi5LfMua_7gmYMbKIVAF/view?usp=share_link
+- Setup video: https://drive.google.com/file/d/1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6/view?usp=share_link
 
 ## What We Built
 
