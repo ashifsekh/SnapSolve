@@ -1,8 +1,30 @@
 # SnapSolve
 
+<!-- Intro demo GIF -->
+
+[![Intro demo](snap-solve/demos/intro.gif)](snap-solve/demos/intro.gif)
+
 ![SnapSolve icon](snap-solve/icons/icon128.png)
 
 SnapSolve is a Manifest V3 Chrome extension that captures a selected region of the current page, sends the screenshot to your chosen AI provider, and shows a concise answer back on the page. It is built with plain JavaScript, HTML, and CSS, so there is no build step or package install required.
+
+## Demo
+
+A quick demo of SnapSolve in action:
+
+<p align="center">
+  <img src="snap-solve/demos/intro.gif" alt="SnapSolve demo" style="max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" />
+</p>
+
+### Setup video
+
+Follow this short setup video to install and configure the extension:
+
+<p>
+  <video src="snap-solve/demos/setup.mp4" controls style="max-width:100%;height:auto;border:1px solid rgba(0,0,0,0.08);border-radius:8px;"> 
+    Your browser does not support the video tag. <a href="snap-solve/demos/setup.mp4">Download the setup video</a>.
+  </video>
+</p>
 
 ## What We Built
 
