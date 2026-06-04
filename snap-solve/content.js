@@ -7,7 +7,7 @@ let startX = 0,
 let overlayEl = null;
 let selectionEl = null;
 let isDragging = false;
-let activeCard = null;
+let activeCards = []; // holds all currently visible answer cards
 
 // Handle cycling profiles and toasts
 async function handleCycleProfile() {
@@ -267,19 +267,9 @@ function deactivateOverlay() {
 
 // Show the answer card
 function showAnswerCard(rect, config) {
-  // Close previous card if exists
-  if (activeCard && activeCard.parentNode) {
-    activeCard.parentNode.removeChild(activeCard);
-  }
-
   // Create card element
   const card = document.createElement("div");
   card.id = "snapsolve-card";
-
-  // Set card position
-  const cardRect = calculateCardPosition(rect);
-  card.style.left = cardRect.x + "px";
-  card.style.top = cardRect.y + "px";
 
   // Card HTML structure
   card.innerHTML = `
@@ -303,14 +293,18 @@ function showAnswerCard(rect, config) {
 
   // Add to document
   document.body.appendChild(card);
-  activeCard = card;
+
+  // Register this card in the active cards array
+  activeCards.push(card);
 
   // Add close button event listener
   const closeBtn = card.querySelector("#snapsolve-close");
   closeBtn.addEventListener("click", () => {
     if (card.parentNode) {
       card.parentNode.removeChild(card);
-      activeCard = null;
+      // Remove from activeCards array
+      activeCards = activeCards.filter((c) => c !== card);
+      updateCloseAllButton();
     }
   });
 
@@ -325,6 +319,8 @@ function showAnswerCard(rect, config) {
     offsetX = e.clientX - card.getBoundingClientRect().left;
     offsetY = e.clientY - card.getBoundingClientRect().top;
     document.body.style.userSelect = "none";
+    // Bring dragged card to front while dragging
+    card.style.zIndex = String(2147483650);
   });
 
   document.addEventListener("mousemove", (e) => {
@@ -351,7 +347,68 @@ function showAnswerCard(rect, config) {
     document.body.style.userSelect = "";
   });
 
+  // After creating and registering the card, compute cascade offset positioning
+  try {
+    const CASCADE_OFFSET = 24;
+    const BASE_RIGHT = 20;
+    const BASE_TOP = 20;
+    // cardCount BEFORE this card was added is activeCards.length - 1
+    const cardCount = Math.max(0, activeCards.length - 1);
+
+    const cardRight = BASE_RIGHT + cardCount * CASCADE_OFFSET;
+    const cardTop = BASE_TOP + cardCount * CASCADE_OFFSET;
+
+    const maxRight = Math.max(10, window.innerWidth - 380);
+    const maxTop = Math.max(10, window.innerHeight - 120);
+
+    card.style.position = "fixed";
+    card.style.right = `${Math.min(cardRight, maxRight)}px`;
+    card.style.top = `${Math.min(cardTop, maxTop)}px`;
+    card.style.width = "360px";
+    card.style.zIndex = String(2147483640 + cardCount);
+  } catch (e) {
+    // Fallback to previous positioning if anything goes wrong
+    const cardRect = calculateCardPosition(rect);
+    card.style.left = cardRect.x + "px";
+    card.style.top = cardRect.y + "px";
+  }
+
+  updateCloseAllButton();
+
   return card;
+}
+
+function updateCloseAllButton() {
+  const existing = document.getElementById("snapsolve-close-all");
+
+  // Remove the button if fewer than 2 cards remain
+  if (activeCards.length < 2) {
+    if (existing) existing.remove();
+    return;
+  }
+
+  // If button already exists just update the count label
+  if (existing) {
+    const label = existing.querySelector(".snapsolve-close-all-count");
+    if (label) {
+      label.textContent = `✕  Close All  (${activeCards.length})`;
+    }
+    return;
+  }
+
+  // Create the Close All pill
+  const btn = document.createElement("div");
+  btn.id = "snapsolve-close-all";
+  btn.innerHTML = `<span class="snapsolve-close-all-count">✕  Close All  (${activeCards.length})</span>`;
+
+  btn.addEventListener("click", () => {
+    // Close every card
+    activeCards.forEach((c) => c.remove());
+    activeCards = [];
+    btn.remove();
+  });
+
+  document.body.appendChild(btn);
 }
 
 // Calculate card position based on selection
@@ -444,15 +501,23 @@ function humanizeError(raw) {
 }
 
 // Display the answer in the card
-function displayAnswer(text, isError) {
-  const skeleton = document.querySelector("#snapsolve-skeleton");
-  const answer = document.querySelector("#snapsolve-answer");
-  const loadingDot = document.querySelector("#snapsolve-loading-dot");
+function displayAnswer(text, isError, card) {
+  // If card not provided, fall back to global selectors (legacy)
+  const root = card || document;
+  const skeleton =
+    root.querySelector("#snapsolve-skeleton") ||
+    document.querySelector("#snapsolve-skeleton");
+  const answer =
+    root.querySelector("#snapsolve-answer") ||
+    document.querySelector("#snapsolve-answer");
+  const loadingDot =
+    root.querySelector("#snapsolve-loading-dot") ||
+    document.querySelector("#snapsolve-loading-dot");
 
-  if (!skeleton || !answer || !loadingDot) return;
+  if (!skeleton || !answer) return;
 
-  // Remove loading dot
-  if (loadingDot.parentNode) {
+  // Remove loading dot if present
+  if (loadingDot && loadingDot.parentNode) {
     loadingDot.parentNode.removeChild(loadingDot);
   }
 
@@ -508,7 +573,7 @@ async function captureAndSolve(rect) {
   const configResult = await chrome.storage.local.get("snapsolve_config");
   const config = configResult.snapsolve_config;
 
-  showAnswerCard(rect, config);
+  const card = showAnswerCard(rect, config);
 
   chrome.runtime.sendMessage(
     { action: "captureAndQuery", rect },
@@ -517,14 +582,15 @@ async function captureAndSolve(rect) {
         displayAnswer(
           "⚠ Extension error: " + chrome.runtime.lastError.message,
           true,
+          card,
         );
         return;
       }
 
       if (response && response.error) {
-        displayAnswer("⚠ " + response.error, true);
+        displayAnswer("⚠ " + response.error, true, card);
       } else if (response && response.answer) {
-        displayAnswer(response.answer, false);
+        displayAnswer(response.answer, false, card);
       }
     },
   );
