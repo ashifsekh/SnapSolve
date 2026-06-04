@@ -310,23 +310,24 @@ function showAnswerCard(rect, config) {
 
   // Add dragging functionality
   const header = card.querySelector("#snapsolve-card-header");
-  let isDragging = false;
-  let offsetX, offsetY;
+  let isDraggingCard = false;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
 
   header.addEventListener("mousedown", (e) => {
     if (e.target === closeBtn) return;
-    isDragging = true;
-    offsetX = e.clientX - card.getBoundingClientRect().left;
-    offsetY = e.clientY - card.getBoundingClientRect().top;
+    isDraggingCard = true;
+    dragOffsetX = e.clientX - card.getBoundingClientRect().left;
+    dragOffsetY = e.clientY - card.getBoundingClientRect().top;
     document.body.style.userSelect = "none";
     // Bring dragged card to front while dragging
     card.style.zIndex = String(2147483650);
   });
 
   document.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-    const x = e.clientX - offsetX;
-    const y = e.clientY - offsetY;
+    if (!isDraggingCard) return;
+    const x = e.clientX - dragOffsetX;
+    const y = e.clientY - dragOffsetY;
 
     // Keep card within viewport
     const clampedX = Math.max(
@@ -343,7 +344,7 @@ function showAnswerCard(rect, config) {
   });
 
   document.addEventListener("mouseup", () => {
-    isDragging = false;
+    isDraggingCard = false;
     document.body.style.userSelect = "";
   });
 
