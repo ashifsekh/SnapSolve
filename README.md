@@ -105,25 +105,6 @@ Set or confirm these shortcuts:
 
 You can change either shortcut in Chrome if you want a different key combo.
 
-## Mermaid Flow
-
-```mermaid
-flowchart TD
-  A[Download ZIP] --> B[Extract the folder]
-  B --> C[Open chrome://extensions]
-  C --> D[Enable Developer mode]
-  D --> E[Load unpacked snap-solve folder]
-  E --> F[Open Extension details]
-  F --> G[Click Extension options]
-  G --> H[Add provider, API key, and model]
-  H --> I[Save configuration]
-  I --> J[Set shortcuts in chrome://extensions/shortcuts]
-  J --> K[Use Draw Box shortcut]
-  J --> L[Use Profile Cycle shortcut]
-  K --> M[Select an area on the page]
-  L --> N[Switch to next saved profile]
-  M --> O[Receive answer on screen]
-```
 
 ## Default Shortcuts
 
@@ -162,4 +143,4 @@ SnapSolve is designed to work with providers that expose either OpenAI-compatibl
 
 ## License
 
-No license file is included yet. Add one if you plan to publish or share the extension publicly.
+This project is licensed under the MIT License.
