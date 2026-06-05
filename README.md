@@ -20,7 +20,7 @@ Watch the setup video (hosted on Google Drive). Note: GitHub strips embedded ifr
 
 <p align="center">
   <a href="https://drive.google.com/file/d/1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6/view?usp=share_link">
-    <img src="snap-solve/demos/1780620986412.png" onerror="this.src='https://drive.google.com/uc?export=view&id=1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6'" alt="Setup video thumbnail" style="width:100%;height:auto;max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" />
+    <img src="snap-solve/demos/thumbnail.png" onerror="this.src='https://drive.google.com/uc?export=view&id=1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6'" alt="Setup video thumbnail" style="width:100%;height:auto;max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" />
   </a>
 </p>
 
