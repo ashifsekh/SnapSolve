@@ -16,7 +16,8 @@ A quick demo of SnapSolve in action (hosted on Google Drive):
 
 ### Setup video
 
-Watch the setup video (hosted on Google Drive). Note: GitHub strips embedded iframes and external video tags, so the video is linked instead of embedded.
+Watch the setup video (hosted on Google Drive).
+Click the image below to view the setup video.
 
 <p align="center">
   <a href="https://drive.google.com/file/d/1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6/view?usp=share_link">
