@@ -20,8 +20,8 @@ Watch the setup video (hosted on Google Drive).
 Click the image below to view the setup video.
 
 <p align="center">
-  <a href="https://drive.google.com/file/d/1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6/view?usp=share_link">
-    <img src="snap-solve/demos/thumbnail.png" onerror="this.src='https://drive.google.com/uc?export=view&id=1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6'" alt="Setup video thumbnail" style="width:100%;height:auto;max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" />
+  <a href="https://drive.google.com/file/d/18gU7y_PduBAxxw0OeYFgnRlteh5r0A0C/view?usp=share_link">
+    <img src="snap-solve/demos/thumbnail.png" onerror="this.src='https://drive.google.com/uc?export=view&id=18gU7y_PduBAxxw0OeYFgnRlteh5r0A0C'" alt="Setup video thumbnail" style="width:100%;height:auto;max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" />
   </a>
 </p>
 
@@ -104,7 +104,6 @@ Set or confirm these shortcuts:
 - Switch saved profile: `Ctrl+Shift+Y` on Windows/Linux, `Cmd+Shift+Y` on Mac
 
 You can change either shortcut in Chrome if you want a different key combo.
-
 
 ## Default Shortcuts
 
