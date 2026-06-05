@@ -24,11 +24,6 @@ Watch the setup video (hosted on Google Drive). Note: GitHub strips embedded ifr
   </a>
 </p>
 
-Direct links:
-
-- Demo GIF: https://drive.google.com/file/d/1ra6ysxUXa1Eqdi5LfMua_7gmYMbKIVAF/view?usp=share_link
-- Setup video: https://drive.google.com/file/d/1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6/view?usp=share_link
-
 ## What We Built
 
 SnapSolve combines three pieces into one workflow:
