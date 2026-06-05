@@ -11,7 +11,7 @@ SnapSolve is a Manifest V3 Chrome extension that captures a selected region of t
 A quick demo of SnapSolve in action (hosted on Google Drive):
 
 <p align="center">
-  <img src="https://drive.google.com/file/d/1mWDJMdPNoYTETEVOxWvgdDFRFCTq9XtC" alt="SnapSolve demo" style="max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" />
+  <img src="https://drive.google.com/uc?export=view&id=1KiUKoVCGLxDpely6GNSxG5rEZRV1AnOH" alt="SnapSolve demo" style="width:100%;height:auto;max-width:100%;border:1px solid rgba(0,0,0,0.08);border-radius:8px;" />
 </p>
 
 ### Setup video
@@ -26,7 +26,7 @@ Watch the setup video (hosted on Google Drive). Note: GitHub strips embedded ifr
 
 Direct links:
 
-- Demo GIF: https://drive.google.com/file/d/1P3kIG8qMiwxL6e-_g4fAbugkMn6qII9O/view?usp=share_link
+- Demo GIF: https://drive.google.com/file/d/1ra6ysxUXa1Eqdi5LfMua_7gmYMbKIVAF/view?usp=share_link
 - Setup video: https://drive.google.com/file/d/1dSL7qNE7HEclVFh6wIxEX1KzZ7T0Hia6/view?usp=share_link
 
 ## What We Built
